@@ -1,3 +1,4 @@
+import request from 'request'
 
 /* eslint-disable no-console */
 
@@ -34,7 +35,7 @@ module.exports.getTest = (app) => {
 
 /**
  * @swagger
- * /getTest2:
+ * /postTest2:
  *   get:
  *     tags:
  *       - Test
@@ -42,9 +43,9 @@ module.exports.getTest = (app) => {
  *     operationId: getTest2
  *     summary: Finds a test
  *     consumes:
- *       - application/json
+ *       - application/x-www-form-urlencoded
  *     produces:
- *       - application/json
+ *       - application/x-www-form-urlencoded
  *     responses:
  *       '200':
  *         description: A single test object
@@ -55,11 +56,8 @@ module.exports.getTest = (app) => {
  */
 
 
-module.exports.getTest2 = (app) => {
-  app.get('/getTest2', (req, res, next) => {
-    res.setHeader('Content-Type', 'application/json')
-    res.end(JSON.stringify('test 2'))
-    res.status(200)
-  });
+module.exports.getTest2 = (app, clientID, clientSecret) => {
+  app.get('/postTest2', (err, req, res) => {
+  })
 };
 

@@ -20,6 +20,8 @@
     "express": "^4.17.1",
     "morgan": "^1.9.1",
     "nodemon": "^1.19.1",
+    "qs": "^6.7.0",
+    "request": "^2.88.0",
     "swagger-editor": "^3.6.29",
     "swagger-jsdoc": "^3.2.9",
     "swagger-ui-express": "^4.0.5"
