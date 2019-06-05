@@ -1,4 +1,3 @@
-import request from 'request'
 
 /* eslint-disable no-console */
 
