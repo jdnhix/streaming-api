@@ -61,6 +61,8 @@ const errorHandler = (err, req, res, next) => {
   return next()
 }
 
+
+
 // Serve swagger docs the way you like (Recommendation: swagger-tools)
 app.get('/swagger.json', (req, res) => {
   res.setHeader('Content-Type', 'application/json');
@@ -78,7 +80,7 @@ app.use(bodyParser.urlencoded({
 }));
 
 // initalize cache
-require('./Cache')
+const cache = require('./Cache')
 
 // Routes
 require('./routes/test').getTest(app)
@@ -87,11 +89,25 @@ require('./routes/test').getTest2(app)
 
 
 // Start the server
-const server = app.listen(port, () => {
-  const host = server.address().address;
-  const { port } = server.address();
-  console.log('Example app listening at http://%s:%s', host, port);
-});
+
+
+
+async function startServer (){
+    const server = app.listen(port, () => {
+      const host = server.address().address;
+      const {port} = server.address();
+      console.log('Example app listening at http://%s:%s', host, port);
+    });
+  }
+
+
+async function startPoolAndServe() {
+  await cache
+  console.log(cache.spotifyToken)
+   await startServer()
+}
+
+startPoolAndServe()
 
 
 module.exports = app;
