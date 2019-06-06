@@ -19,9 +19,6 @@ app.use(session({
   cookie: {}
 }))
 
-
-
-
 // Swagger definition
 // You can set every attribute except paths and swagger
 // https://github.com/swagger-api/swagger-spec/blob/master/versions/2.0.md
@@ -47,9 +44,7 @@ const options = {
 
 // Initialize swagger-jsdoc -> returns validated swagger spec in json format
 
-const swaggerSpec = swaggerDoc(options, () => {
-
-});
+const swaggerSpec = swaggerDoc(options)
 
 const errorHandler = (err, req, res, next) => {
   if (err) {
@@ -61,8 +56,6 @@ const errorHandler = (err, req, res, next) => {
   return next()
 }
 
-
-
 // Serve swagger docs the way you like (Recommendation: swagger-tools)
 app.get('/swagger.json', (req, res) => {
   res.setHeader('Content-Type', 'application/json');
@@ -72,6 +65,7 @@ app.get('/swagger.json', (req, res) => {
 
 app.use('/api-docs', swagger.serve, swagger.setup(swaggerSpec))
 app.use(cors());
+app.use(errorHandler)
 app.use(morgan('dev'));
 app.use(bodyParser.json()); // To support JSON-encoded bodies
 app.use(bodyParser.urlencoded({
@@ -79,35 +73,15 @@ app.use(bodyParser.urlencoded({
   extended: true
 }));
 
-// initalize cache
-const cache = require('./Cache')
-
 // Routes
 require('./routes/test').getTest(app)
 require('./routes/test').getTest2(app)
 
-
-
 // Start the server
-
-
-
-async function startServer (){
     const server = app.listen(port, () => {
       const host = server.address().address;
       const {port} = server.address();
-      console.log('Example app listening at http://%s:%s', host, port);
+      console.log('Server Listening at http://%s:%s', host, port);
     });
-  }
-
-
-async function startPoolAndServe() {
-  await cache
-  console.log(cache.spotifyToken)
-   await startServer()
-}
-
-startPoolAndServe()
-
 
 module.exports = app;

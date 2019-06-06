@@ -1,76 +1,35 @@
-import request from 'request';
+import { DataCache } from './DataCache'
+import axios from 'axios'
 
 const clientID = '85ec7eb9dc0543fc9408c8ba05fd2bdb';
 const clientSecret = 'c9192d5af4bb450da0770bf5b23f4e49';
-const authOptions = {
-  url: 'https://accounts.spotify.com/api/token',
-  headers: {
-    'Authorization': 'Basic ' + (new Buffer(clientID + ':' + clientSecret).toString('base64'))
-  },
-  form: {
-    grant_type: 'client_credentials'
-  },
-  json: true
-};
+const getSpotifyToken = () => {
+  const url =  'https://accounts.spotify.com/api/token'
+  return axios({
+    method: 'post',
+    url: url,
+    params: { // in axios data is the body request
+      grant_type: 'client_credentials',
+    },
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Authorization': 'Basic ' + Buffer.from(`${clientID}:${clientSecret}`).toString('base64') // client id and secret from env
+    }
+  }).then((result)=> {
+    return result
+  }).catch((err) => console.log(err.response))
+}
 
-
-// const Cache = {}
-// const midWare = (req, res, next) => {
-//   const key = req.url
-//   if(Cache[key]) {
-//     console.log('hit cache')
-//     res.send('from cache')
-//   } else {
-//     console.log('not from cache')
-//     res.sendResponse = res.send;
-//     res.send = (body) => {
-//       Cache[key] = body
-//       res.sendResponse(body);
-//     }
-//     next();
-//   }
-// }
-
-
-
-async function Cache () {
-  const self = this
+const spotifyCache = new DataCache(getSpotifyToken)
+const spotifyToken = () => {
   return new Promise((resolve, reject) => {
-    const props = {
-      initDone: null,
-      spotifyToken: '',
-      getSpotifyToken: () => {
-          request.post(authOptions, (error, response, body) => {
-            if (!error && response.statusCode === 200) {
-              // use the access token to access the Spotify Web API
-              self.spotifyToken = body.access_token;
-
-            }
-          })
-
-    this.getSpotifyToken()
-    resolve(props)
-  })
+      spotifyCache.getData().then(token => {
+        resolve(token.data.access_token)
+      })
+    }
+  )
 }
 
-
-
-
-module.exports = async () => {
-  const cache = await Cache
-  return cache
+module.exports = {
+  spotifyToken : spotifyToken()
 }
-
-
-
-
-//use this for other calls
-// const options = {
-//   url: 'https://api.spotify.com/v1/users/jdhnation',
-//   headers: {
-//     'Authorization': 'Bearer ' + token
-//   },
-//   json: true
-// };
-// request.get(options, function(error, response, body) {
-// });

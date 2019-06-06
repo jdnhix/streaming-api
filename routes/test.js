@@ -1,6 +1,8 @@
 
 /* eslint-disable no-console */
 
+import cache from '../cache'
+
 /**
  * @swagger
  * /getTest:
@@ -25,9 +27,11 @@
 
 
 module.exports.getTest = (app) => {
-  app.get('/getTest', (req, res, next) => {
+  app.get('/getTest', async (req, res, next) => {
     res.setHeader('Content-Type', 'application/json')
-    res.end(JSON.stringify('test 123'))
+    const spotifyToken = await cache.spotifyToken
+    console.log(spotifyToken)
+    res.end(JSON.stringify(spotifyToken))
     res.status(200)
   });
 };
