@@ -30,7 +30,7 @@ module.exports.getTest = (app) => {
   app.get('/getTest', async (req, res, next) => {
     res.setHeader('Content-Type', 'application/json')
     const spotifyToken = await cache.spotifyToken
-    console.log(spotifyToken)
+
     res.end(JSON.stringify(spotifyToken))
     res.status(200)
   });

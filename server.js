@@ -63,6 +63,8 @@ app.get('/swagger.json', (req, res) => {
 });
 
 
+
+
 app.use('/api-docs', swagger.serve, swagger.setup(swaggerSpec))
 app.use(cors());
 app.use(errorHandler)
@@ -76,6 +78,8 @@ app.use(bodyParser.urlencoded({
 // Routes
 require('./routes/test').getTest(app)
 require('./routes/test').getTest2(app)
+require('./routes/spotifySearch').searchTrack(app)
+
 
 // Start the server
     const server = app.listen(port, () => {
