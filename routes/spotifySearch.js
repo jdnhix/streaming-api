@@ -4,9 +4,8 @@ import axios from 'axios'
 
 module.exports.searchTrack = async(app) => {
     const spotifyToken = await cache.spotifyToken
-    const songName = 'shiptrip'
-    const artistName = 'kyle'
-    const albumName = ''
+    const songName = 'moi'
+    const artistName = "lolo zouai" //todo im still confused on how to encode spaces...sometimes %20 works
 
     function findTrack() {
         return axios.get('https://api.spotify.com/v1/search', {
@@ -18,14 +17,17 @@ module.exports.searchTrack = async(app) => {
                 type: 'track'
             }
         }).then((results) => {
-            console.log(results.data.tracks.items[0])
-            return results.data.tracks.items[0]
+            // console.log(results.data.tracks.items[0])
+            return results.data.tracks.items
         }).catch((err) => console.log(err.response))
     }
 
-    app.get('/searchTrack', (req, res) => {
-        res.send(findTrack())
+    app.get('/searchTrack', async (req, res) => {
+        const temp = await findTrack();
+        console.log(temp);
+        res.end(JSON.stringify(temp, null, 2));
     })
 
+    //JSON.stringify(findTrack())
 
 }
