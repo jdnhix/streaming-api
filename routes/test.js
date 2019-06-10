@@ -2,6 +2,7 @@
 /* eslint-disable no-console */
 
 import cache from '../cache'
+import axios from "axios";
 
 /**
  * @swagger
@@ -38,12 +39,12 @@ module.exports.getTest = (app) => {
 
 /**
  * @swagger
- * /postTest2:
+ * /spotifySearchTest:
  *   get:
  *     tags:
  *       - Test
  *     name: Find test
- *     operationId: getTest2
+ *     operationId: spotifySearchTest
  *     summary: Finds a test
  *     consumes:
  *       - application/x-www-form-urlencoded
@@ -59,8 +60,24 @@ module.exports.getTest = (app) => {
  */
 
 
-module.exports.getTest2 = (app, clientID, clientSecret) => {
-  app.get('/postTest2', (err, req, res) => {
+module.exports.spotifySearchTest = (app) => {
+  app.get('/spotifySearchTest', async (req, res) => {
+    const spotifyToken = await cache.spotifyToken
+    const songName = 'ricky'
+    const artistName = 'denzel curry' //todo im still confused on how to encode spaces...sometimes %20 works
+
+    axios.get('https://api.spotify.com/v1/search', {
+      headers: {
+        'Authorization': 'Bearer ' + spotifyToken
+      },
+      params: {
+        q: `track:${songName} artist:${artistName}`,
+        type: 'track'
+      }
+    }).then((results) => {
+      res.send(JSON.stringify(results.data.tracks.items, null, 2));
+    }).catch((err) => console.log(err.response))
+
   })
 };
 

@@ -17,7 +17,6 @@ module.exports.searchTrack = async(app) => {
                 type: 'track'
             }
         }).then((results) => {
-            // console.log(results.data.tracks.items[0])
             return results.data.tracks.items
         }).catch((err) => console.log(err.response))
     }

@@ -5,8 +5,7 @@ import swagger from 'swagger-ui-express';
 import bodyParser from 'body-parser';
 import morgan from 'morgan';
 import logger from './logger'
-import session from 'express-session'
-
+import session from 'cookie-session'
 const host = 'localhost:'
 const port = process.env.API_PORT || 3000;
 
@@ -76,9 +75,9 @@ app.use(bodyParser.urlencoded({
 }));
 
 // Routes
-require('./routes/test').getTest(app)
-require('./routes/test').getTest2(app)
-require('./routes/spotifySearch').searchTrack(app)
+// require('./routes/test').getTest(app)
+// require('./routes/test').spotifySearchTest(app)
+require('./routes/user.js').temp();
 
 
 // Start the server
