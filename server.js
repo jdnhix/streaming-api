@@ -6,6 +6,8 @@ import bodyParser from 'body-parser';
 import morgan from 'morgan';
 import logger from './logger'
 import session from 'cookie-session'
+import user from './routes/user.js'
+
 const host = 'localhost:'
 const port = process.env.API_PORT || 3000;
 
@@ -76,12 +78,13 @@ app.use(bodyParser.urlencoded({
 
 // Routes
 // require('./routes/test').getTest(app)
-// require('./routes/test').spotifySearchTest(app)
-require('./routes/user.js').temp();
+// require('./routes/test').spotifySearchTest(app) todo fix these two
+require('./routes/user.js').getUserAccess(app);
+
 
 
 // Start the server
-    const server = app.listen(port, () => {
+    const server = app.listen(port, async () => {
       const host = server.address().address;
       const {port} = server.address();
       console.log('Server Listening at http://%s:%s', host, port);
