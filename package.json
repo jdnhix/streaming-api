@@ -24,6 +24,7 @@
     "morgan": "^1.9.1",
     "nodemon": "^1.19.1",
     "qs": "^6.7.0",
+    "querystring": "^0.2.0",
     "request": "^2.88.0",
     "session": "^0.1.0",
     "swagger-editor": "^3.6.29",

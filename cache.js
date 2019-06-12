@@ -13,7 +13,7 @@ const getSpotifyToken = () => {
     method: 'post',
     url: url,
     params: { // in axios data is the body request
-      grant_type: 'authorization_code',
+      grant_type: 'client_credentials',
     },
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',

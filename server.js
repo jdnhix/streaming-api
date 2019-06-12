@@ -77,11 +77,12 @@ app.use(bodyParser.urlencoded({
 }));
 
 // Routes
-// require('./routes/test').getTest(app)
-// require('./routes/test').spotifySearchTest(app) todo fix these two
-require('./routes/user.js').getUserAccess(app);
+require('./routes/test').getTest(app)
+require('./routes/test').spotifySearchTest(app)
 
-
+// require('./routes/user.js').getUserAccess(app);
+require('./routes/spotifyPractice.js').getTopTracks(app);
+// require('./routes/spotifyPractice.js').spotifyAuth(app);
 
 // Start the server
     const server = app.listen(port, async () => {
