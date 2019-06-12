@@ -6,7 +6,6 @@ import bodyParser from 'body-parser';
 import morgan from 'morgan';
 import logger from './logger'
 import session from 'cookie-session'
-import user from './routes/user.js'
 
 const host = 'localhost:'
 const port = process.env.API_PORT || 3000;
@@ -14,6 +13,7 @@ const port = process.env.API_PORT || 3000;
 const app = express();
 
 app.use(session({
+  // maxAge: 10000,
   secret: 'test',
   resave: false,
   saveUninitialized: true,
@@ -80,9 +80,10 @@ app.use(bodyParser.urlencoded({
 require('./routes/test').getTest(app)
 require('./routes/test').spotifySearchTest(app)
 
-// require('./routes/user.js').getUserAccess(app);
-require('./routes/spotifyPractice.js').getTopTracks(app);
-// require('./routes/spotifyPractice.js').spotifyAuth(app);
+require('./routes/auth.js').getUserAccess(app);
+require('./routes/user').user(app);
+require('./routes/player').player(app);
+require('./routes/search').search(app);
 
 // Start the server
     const server = app.listen(port, async () => {
