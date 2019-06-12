@@ -7,6 +7,29 @@ const redirect_uri = 'http://localhost:3000/user'
 
 
 module.exports.getUserAccess = (app) => {
+
+    /**
+     * @swagger
+     * /login:
+     *   get:
+     *     tags:
+     *       - Test
+     *     name: Find test
+     *     operationId: login
+     *     summary: Logs a user in
+     *     consumes:
+     *       - application/json
+     *     produces:
+     *       - application/json
+     *     responses:
+     *       '200':
+     *         description: A single test object
+     *       '401':
+     *         description: No auth token / no user found in db with that name
+     *       '403':
+     *         description: JWT token and username from client don't match
+     */
+
     app.get('/login', (req, res) => {
         res.redirect('https://accounts.spotify.com/authorize?' +
             querystring.stringify({
@@ -48,6 +71,27 @@ module.exports.getUserAccess = (app) => {
 
     });
 
+    /**
+     * @swagger
+     * /refresh_token:
+     *   get:
+     *     tags:
+     *       - Test
+     *     name: Refresh Token
+     *     operationId: refresh_token
+     *     summary: refreshes user access token
+     *     consumes:
+     *       - application/json
+     *     produces:
+     *       - application/json
+     *     responses:
+     *       '200':
+     *         description: A single test object
+     *       '401':
+     *         description: No auth token / no user found in db with that name
+     *       '403':
+     *         description: JWT token and username from client don't match
+     */
 
     app.get('/refresh_token', function (req, res) {
 

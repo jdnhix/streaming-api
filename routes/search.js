@@ -4,12 +4,46 @@ import axios from "axios";
 
 module.exports.search = (app) => {
 
-    app.get('/search',async  (req, res) => {
-        const spotifyToken = await cache.spotifyToken
-        const access_token = req.session.access_token
-        const songName = 'moi'
-        const artistName = "lolo zouai"
+    /**
+     * @swagger
+     * /search:
+     *   get:
+     *     tags:
+     *       - Test
+     *     name: Search
+     *     operationId: search
+     *     summary: searches for a song by name and artist
+     *     parameters:
+     *      - in: query
+     *        name: songName
+     *        schema:
+     *          type: string
+     *        required: true
+     *        description: name of song
+     *      - in: query
+     *        name: artistName
+     *        schema:
+     *          type: string
+     *        required: true
+     *        description: name of song's artist
+     *     consumes:
+     *       - application/json
+     *     produces:
+     *       - application/json
+     *     responses:
+     *       '200':
+     *         description: A single test object
+     *       '401':
+     *         description: No auth token / no user found in db with that name
+     *       '403':
+     *         description: JWT token and username from client don't match
+     */
 
+    app.get('/search', async  (req, res) => {
+        console.log(req.query.songName)
+        const spotifyToken = await cache.spotifyToken
+        const songName = req.query.songName
+        const artistName = req.query.artistName
         console.log(spotifyToken)
 
         const options = {

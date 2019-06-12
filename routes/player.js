@@ -59,6 +59,40 @@ module.exports.player = (app) => {
         });
     })
 
+    app.get('/seek', (req, res) => {
+        const access_token = req.session.access_token
+
+        const options = {
+            url: 'https://api.spotify.com/v1/me/player/seek',
+            headers: {'Authorization': 'Bearer ' + access_token},
+            json: true,
+            qs: {
+                position_ms: 5000
+            }
+        };
+
+        request.put(options, () => {
+            res.end('seeked to 5 seconds!')
+        });
+    })
+
+    app.get('/volume', (req, res) => {
+        const access_token = req.session.access_token
+
+        const options = {
+            url: 'https://api.spotify.com/v1/me/player/volume',
+            headers: {'Authorization': 'Bearer ' + access_token},
+            json: true,
+            qs: {
+                volume_percent: 10
+            }
+        };
+
+        request.put(options, () => {
+            res.end('volume changed to 10%!')
+        });
+    })
+
     app.get('/next', (req, res) => {
         const access_token = req.session.access_token
 
@@ -100,6 +134,8 @@ module.exports.player = (app) => {
             res.end(JSON.stringify(body, undefined, 2))
         });
     })
+
+
 
 
 

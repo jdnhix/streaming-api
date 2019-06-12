@@ -2,6 +2,28 @@ import request from 'request'
 
 module.exports.user = (app) => {
 
+    /**
+     * @swagger
+     * /userProfile:
+     *   get:
+     *     tags:
+     *       - Test
+     *     name: User Profile
+     *     operationId: userProfile
+     *     summary: Retrieves user info
+     *     consumes:
+     *       - application/json
+     *     produces:
+     *       - application/json
+     *     responses:
+     *       '200':
+     *         description: A single test object
+     *       '401':
+     *         description: No auth token / no user found in db with that name
+     *       '403':
+     *         description: JWT token and username from client don't match
+     */
+
     app.get('/userProfile', (req, res) => {
         const access_token = req.session.access_token
 
@@ -15,6 +37,29 @@ module.exports.user = (app) => {
             res.end(JSON.stringify(body, undefined, 2))
         });
     })
+
+
+    /**
+     * @swagger
+     * /top:
+     *   get:
+     *     tags:
+     *       - Test
+     *     name: Top
+     *     operationId: top
+     *     summary: Retrieves user's top songs or tracks
+     *     consumes:
+     *       - application/json
+     *     produces:
+     *       - application/json
+     *     responses:
+     *       '200':
+     *         description: A single test object
+     *       '401':
+     *         description: No auth token / no user found in db with that name
+     *       '403':
+     *         description: JWT token and username from client don't match
+     */
 
     //todo check to see if scope works
     app.get('/top', (req, res) => {
