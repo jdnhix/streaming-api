@@ -5,7 +5,7 @@ import cache from '../cache'
 import axios from "axios";
 
 /**
- * @swagger
+ * swagger
  * /getTest:
  *   get:
  *     tags:
@@ -38,7 +38,7 @@ module.exports.getTest = (app) => {
 };
 
 /**
- * @swagger
+ * swagger
  * /spotifySearchTest:
  *   get:
  *     tags:

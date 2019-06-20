@@ -2,6 +2,28 @@ import request from 'request'
 
 module.exports.player = (app) => {
 
+    /**
+     * @swagger
+     * /currentPlayback:
+     *   get:
+     *     tags:
+     *       - Test
+     *     name: Current Playback
+     *     operationId: currentPlayback
+     *     summary: reports the user's current playback
+     *     consumes:
+     *       - application/json
+     *     produces:
+     *       - application/json
+     *     responses:
+     *       '200':
+     *         description: A single test object
+     *       '401':
+     *         description: No auth token / no user found in db with that name
+     *       '403':
+     *         description: JWT token and username from client don't match
+     */
+
     app.get('/currentPlayback', (req, res) => {
         const access_token = req.session.access_token
 
@@ -15,6 +37,28 @@ module.exports.player = (app) => {
             res.end(JSON.stringify(body, undefined, 2))
         });
     })
+
+    /**
+     * @swagger
+     * /recentlyPlayed:
+     *   get:
+     *     tags:
+     *       - Test
+     *     name: Recently Played
+     *     operationId: recentlyPlayed
+     *     summary: reports the user's recently played songs
+     *     consumes:
+     *       - application/json
+     *     produces:
+     *       - application/json
+     *     responses:
+     *       '200':
+     *         description: A single test object
+     *       '401':
+     *         description: No auth token / no user found in db with that name
+     *       '403':
+     *         description: JWT token and username from client don't match
+     */
 
     app.get('/recentlyPlayed', (req, res) => {
         const access_token = req.session.access_token
@@ -30,7 +74,28 @@ module.exports.player = (app) => {
         });
     })
 
-    //this one doesnt work
+    /**
+     * @swagger
+     * /pause:
+     *   get:
+     *     tags:
+     *       - Test
+     *     name: Pauses
+     *     operationId: pause
+     *     summary: pauses music
+     *     consumes:
+     *       - application/json
+     *     produces:
+     *       - application/json
+     *     responses:
+     *       '200':
+     *         description: A single test object
+     *       '401':
+     *         description: No auth token / no user found in db with that name
+     *       '403':
+     *         description: JWT token and username from client don't match
+     */
+
     app.get('/pause', (req, res) => {
         const access_token = req.session.access_token
 
@@ -45,6 +110,28 @@ module.exports.player = (app) => {
         });
     })
 
+    /**
+     * @swagger
+     * /play:
+     *   get:
+     *     tags:
+     *       - Test
+     *     name: Play
+     *     operationId: play
+     *     summary: resumes the user's music
+     *     consumes:
+     *       - application/json
+     *     produces:
+     *       - application/json
+     *     responses:
+     *       '200':
+     *         description: A single test object
+     *       '401':
+     *         description: No auth token / no user found in db with that name
+     *       '403':
+     *         description: JWT token and username from client don't match
+     */
+
     app.get('/play', (req, res) => {
         const access_token = req.session.access_token
 
@@ -58,6 +145,28 @@ module.exports.player = (app) => {
             res.end('music started!')
         });
     })
+
+    /**
+     * @swagger
+     * /seek:
+     *   get:
+     *     tags:
+     *       - Test
+     *     name: Seek
+     *     operationId: seek
+     *     summary: seeks to the 5 second mark of user's current song
+     *     consumes:
+     *       - application/json
+     *     produces:
+     *       - application/json
+     *     responses:
+     *       '200':
+     *         description: A single test object
+     *       '401':
+     *         description: No auth token / no user found in db with that name
+     *       '403':
+     *         description: JWT token and username from client don't match
+     */
 
     app.get('/seek', (req, res) => {
         const access_token = req.session.access_token
@@ -76,6 +185,29 @@ module.exports.player = (app) => {
         });
     })
 
+    /**
+     * @swagger
+     * /volume:
+     *   get:
+     *     tags:
+     *       - Test
+     *     name: Volume
+     *     operationId: volume
+     *     summary: changes the music's volume to 10%
+     *     consumes:
+     *       - application/json
+     *     produces:
+     *       - application/json
+     *     responses:
+     *       '200':
+     *         description: A single test object
+     *       '401':
+     *         description: No auth token / no user found in db with that name
+     *       '403':
+     *         description: JWT token and username from client don't match
+     */
+
+    //todo this one doesnt work
     app.get('/volume', (req, res) => {
         const access_token = req.session.access_token
 
@@ -93,6 +225,28 @@ module.exports.player = (app) => {
         });
     })
 
+    /**
+     * @swagger
+     * /next:
+     *   get:
+     *     tags:
+     *       - Test
+     *     name: Next
+     *     operationId: next
+     *     summary: skips to the next song
+     *     consumes:
+     *       - application/json
+     *     produces:
+     *       - application/json
+     *     responses:
+     *       '200':
+     *         description: A single test object
+     *       '401':
+     *         description: No auth token / no user found in db with that name
+     *       '403':
+     *         description: JWT token and username from client don't match
+     */
+
     app.get('/next', (req, res) => {
         const access_token = req.session.access_token
 
@@ -107,6 +261,28 @@ module.exports.player = (app) => {
         });
     })
 
+    /**
+     * @swagger
+     * /previous:
+     *   get:
+     *     tags:
+     *       - Test
+     *     name: Previous
+     *     operationId: previous
+     *     summary: returns to the previous song
+     *     consumes:
+     *       - application/json
+     *     produces:
+     *       - application/json
+     *     responses:
+     *       '200':
+     *         description: A single test object
+     *       '401':
+     *         description: No auth token / no user found in db with that name
+     *       '403':
+     *         description: JWT token and username from client don't match
+     */
+
     app.get('/previous', (req, res) => {
         const access_token = req.session.access_token
 
@@ -120,6 +296,28 @@ module.exports.player = (app) => {
             res.send('skipped to previous song!')
         });
     })
+
+    /**
+     * @swagger
+     * /devices:
+     *   get:
+     *     tags:
+     *       - Test
+     *     name: Devices
+     *     operationId: devices
+     *     summary: reports a list of user's live devices
+     *     consumes:
+     *       - application/json
+     *     produces:
+     *       - application/json
+     *     responses:
+     *       '200':
+     *         description: A single test object
+     *       '401':
+     *         description: No auth token / no user found in db with that name
+     *       '403':
+     *         description: JWT token and username from client don't match
+     */
 
     app.get('/devices', (req, res) => {
         const access_token = req.session.access_token

@@ -77,14 +77,14 @@ app.use(bodyParser.urlencoded({
 }));
 
 // Routes
-require('./routes/test').getTest(app)
-require('./routes/test').spotifySearchTest(app)
+require('./routes/test').getTest(app);
+require('./routes/test').spotifySearchTest(app);
 
 require('./routes/auth.js').getUserAccess(app);
 require('./routes/user').user(app);
 require('./routes/player').player(app);
 require('./routes/search').search(app);
-require('./routes/room').room(app)
+require('./routes/room').room(app);
 
 // Start the server
     const server = app.listen(port, async () => {
