@@ -1,8 +1,8 @@
+import axios from 'axios'
 
 
 
-
-module.exports.room = (app) => {
+module.exports.room = (app, db) => {
 
     /**
      * @swagger
@@ -27,7 +27,14 @@ module.exports.room = (app) => {
      */
 
     app.get('/getAllRooms', (req, res) => {
-        res.send('test')
+        db.development.collection('rooms').find({}).toArray((err, docs) => {
+            if (err) {
+                console.log(err)
+                res.error(err)
+            } else {
+                res.json(docs)
+            }
+        })
     })
 
 
@@ -63,4 +70,58 @@ module.exports.room = (app) => {
         res.send('test')
     })
 
+
+
+
+    /**
+     * @swagger
+     * /addRoom:
+     *   post:
+     *     tags:
+     *       - Test
+     *     name: Add Room
+     *     operationId: addRoom
+     *     summary: Adds a new room to the database
+     *     parameters:
+     *      - in: body
+     *        schema:
+     *          type: object
+     *          required:
+     *              -roomName
+     *          properties:
+     *              roomName:
+     *                  type: string
+     *        required: true
+     *        description: name of room
+     *     consumes:
+     *       - application/json
+     *     responses:
+     *       '200':
+     *         description: A single test object
+     *       '401':
+     *         description: No auth token / no user found in db with that name
+     *       '403':
+     *         description: JWT token and username from client don't match
+     */
+
+    app.post('/addRoom', (req, res) => {
+        const roomName = req.body.roomName;
+        console.log(roomName)
+
+        // db.development.collection('rooms').insertOne({
+        //     roomName: "Test Room 3"
+        // }, (err, result) => {
+        //     console.log(result)
+        //     if (err) {
+        //         console.log(err)
+        //         res.error(err)
+        //     } else {
+        //         res.json(result)
+        //     }
+        // })
+    })
+
+
+
+    app.get('/')
 }

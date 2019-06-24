@@ -7,6 +7,8 @@ import morgan from 'morgan';
 import logger from './logger'
 import session from 'cookie-session'
 
+const initializeDatabases = require('./db.js')
+
 const host = 'localhost:'
 const port = process.env.API_PORT || 3000;
 
@@ -38,6 +40,7 @@ const options = {
   // Import swaggerDefinitions
   swaggerDefinition,
   explorer: true,
+  jsonEditor: true,
   // Path to the API docs
   // Note that this path is relative to the current directory from which the Node.js is ran, not the application itself.
   apis: ['./routes/*.js'],
@@ -49,6 +52,7 @@ const swaggerSpec = swaggerDoc(options)
 
 const errorHandler = (err, req, res, next) => {
   if (err) {
+
     logger.info("Universal Error Catch")
     logger.info(err)
     if (res.statusCode === 200) res.statusCode = 400
@@ -76,21 +80,24 @@ app.use(bodyParser.urlencoded({
   extended: true
 }));
 
+initializeDatabases().then(db => {
 // Routes
-require('./routes/test').getTest(app);
-require('./routes/test').spotifySearchTest(app);
+  require('./routes/test').getTest(app);
+  require('./routes/test').spotifySearchTest(app);
 
-require('./routes/auth.js').getUserAccess(app);
-require('./routes/user').user(app);
-require('./routes/player').player(app);
-require('./routes/search').search(app);
-require('./routes/room').room(app);
+  require('./routes/auth.js').getUserAccess(app);
+  require('./routes/user').user(app);
+  require('./routes/player').player(app);
+  require('./routes/search').search(app);
+  require('./routes/room').room(app, db);
 
 // Start the server
-    const server = app.listen(port, async () => {
-      const host = server.address().address;
-      const {port} = server.address();
-      console.log('Server Listening at http://%s:%s', host, port);
-    });
+  const server = app.listen(port, async () => {
+    const host = server.address().address;
+    const {port} = server.address();
+    console.log('Server Listening at http://%s:%s', host, port);
+  });
+
+});
 
 module.exports = app;
