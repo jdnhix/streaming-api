@@ -13,7 +13,7 @@ module.exports.getUserAccess = (app) => {
      * /login:
      *   get:
      *     tags:
-     *       - Test
+     *       - User
      *     name: Find test
      *     operationId: login
      *     summary: Logs a user in
@@ -46,6 +46,29 @@ module.exports.getUserAccess = (app) => {
             }))
     })
 
+
+    /**
+     * @swagger
+     * /user:
+     *   get:
+     *     tags:
+     *       - User
+     *     name: User
+     *     operationId: login
+     *     summary: Logs a user in pt. 2
+     *     consumes:
+     *       - application/json
+     *     produces:
+     *       - application/json
+     *     responses:
+     *       '200':
+     *         description: A single test object
+     *       '401':
+     *         description: No auth token / no user found in db with that name
+     *       '403':
+     *         description: JWT token and username from client don't match
+     */
+
     app.get('/user', (req, res) => {
         const code = req.query.code;
 
@@ -76,7 +99,7 @@ module.exports.getUserAccess = (app) => {
      * /refresh_token:
      *   get:
      *     tags:
-     *       - Test
+     *       - User
      *     name: Refresh Token
      *     operationId: refresh_token
      *     summary: refreshes user access token

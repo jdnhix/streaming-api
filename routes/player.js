@@ -7,7 +7,7 @@ module.exports.player = (app) => {
      * /currentPlayback:
      *   get:
      *     tags:
-     *       - Test
+     *       - Player
      *     name: Current Playback
      *     operationId: currentPlayback
      *     summary: reports the user's current playback
@@ -43,7 +43,7 @@ module.exports.player = (app) => {
      * /recentlyPlayed:
      *   get:
      *     tags:
-     *       - Test
+     *       - User
      *     name: Recently Played
      *     operationId: recentlyPlayed
      *     summary: reports the user's recently played songs
@@ -77,10 +77,10 @@ module.exports.player = (app) => {
     /**
      * @swagger
      * /pause:
-     *   get:
+     *   post:
      *     tags:
-     *       - Test
-     *     name: Pauses
+     *       - Player
+     *     name: Pause
      *     operationId: pause
      *     summary: pauses music
      *     consumes:
@@ -96,7 +96,7 @@ module.exports.player = (app) => {
      *         description: JWT token and username from client don't match
      */
 
-    app.get('/pause', (req, res) => {
+    app.post('/pause', (req, res) => {
         const access_token = req.session.access_token
 
         const options = {
@@ -113,9 +113,9 @@ module.exports.player = (app) => {
     /**
      * @swagger
      * /play:
-     *   get:
+     *   post:
      *     tags:
-     *       - Test
+     *       - Player
      *     name: Play
      *     operationId: play
      *     summary: resumes the user's music
@@ -132,7 +132,7 @@ module.exports.player = (app) => {
      *         description: JWT token and username from client don't match
      */
 
-    app.get('/play', (req, res) => {
+    app.post('/play', (req, res) => {
         const access_token = req.session.access_token
 
         const options = {
@@ -149,12 +149,19 @@ module.exports.player = (app) => {
     /**
      * @swagger
      * /seek:
-     *   get:
+     *   post:
      *     tags:
-     *       - Test
+     *       - Player
      *     name: Seek
      *     operationId: seek
      *     summary: seeks to the 5 second mark of user's current song
+     *     parameters:
+     *      - in: query
+     *        name: position
+     *        schema:
+     *          type: int
+     *        required: true
+     *        description: position, in ms, to seek to
      *     consumes:
      *       - application/json
      *     produces:
@@ -168,29 +175,30 @@ module.exports.player = (app) => {
      *         description: JWT token and username from client don't match
      */
 
-    app.get('/seek', (req, res) => {
-        const access_token = req.session.access_token
+    app.post('/seek', (req, res) => {
+        const access_token = req.session.access_token;
+        const {position} = req.query;
 
         const options = {
             url: 'https://api.spotify.com/v1/me/player/seek',
             headers: {'Authorization': 'Bearer ' + access_token},
             json: true,
             qs: {
-                position_ms: 5000
+                position_ms: position
             }
         };
 
         request.put(options, () => {
-            res.end('seeked to 5 seconds!')
+            res.end(`seeked to ${position / 1000} seconds!`)
         });
     })
 
     /**
      * @swagger
      * /volume:
-     *   get:
+     *   post:
      *     tags:
-     *       - Test
+     *       - Player
      *     name: Volume
      *     operationId: volume
      *     summary: changes the music's volume to 10%
@@ -208,7 +216,7 @@ module.exports.player = (app) => {
      */
 
     //todo this one doesnt work
-    app.get('/volume', (req, res) => {
+    app.post('/volume', (req, res) => {
         const access_token = req.session.access_token
 
         const options = {
@@ -228,9 +236,9 @@ module.exports.player = (app) => {
     /**
      * @swagger
      * /next:
-     *   get:
+     *   post:
      *     tags:
-     *       - Test
+     *       - Player
      *     name: Next
      *     operationId: next
      *     summary: skips to the next song
@@ -247,7 +255,7 @@ module.exports.player = (app) => {
      *         description: JWT token and username from client don't match
      */
 
-    app.get('/next', (req, res) => {
+    app.post('/next', (req, res) => {
         const access_token = req.session.access_token
 
         const options = {
@@ -264,9 +272,9 @@ module.exports.player = (app) => {
     /**
      * @swagger
      * /previous:
-     *   get:
+     *   post:
      *     tags:
-     *       - Test
+     *       - Player
      *     name: Previous
      *     operationId: previous
      *     summary: returns to the previous song
@@ -283,7 +291,7 @@ module.exports.player = (app) => {
      *         description: JWT token and username from client don't match
      */
 
-    app.get('/previous', (req, res) => {
+    app.post('/previous', (req, res) => {
         const access_token = req.session.access_token
 
         const options = {
@@ -302,7 +310,7 @@ module.exports.player = (app) => {
      * /devices:
      *   get:
      *     tags:
-     *       - Test
+     *       - Player
      *     name: Devices
      *     operationId: devices
      *     summary: reports a list of user's live devices
@@ -332,8 +340,6 @@ module.exports.player = (app) => {
             res.end(JSON.stringify(body, undefined, 2))
         });
     })
-
-
 
 
 

@@ -7,7 +7,7 @@ module.exports.user = (app) => {
      * /userProfile:
      *   get:
      *     tags:
-     *       - Test
+     *       - User
      *     name: User Profile
      *     operationId: userProfile
      *     summary: Retrieves user info
@@ -44,7 +44,7 @@ module.exports.user = (app) => {
      * /top:
      *   get:
      *     tags:
-     *       - Test
+     *       - User
      *     name: Top
      *     operationId: top
      *     summary: Retrieves user's top songs or tracks

@@ -1,6 +1,5 @@
 import request from 'request'
 import cache from '../cache'
-import axios from "axios";
 
 module.exports.search = (app) => {
 
@@ -9,7 +8,7 @@ module.exports.search = (app) => {
      * /search:
      *   get:
      *     tags:
-     *       - Test
+     *       - Player
      *     name: Search
      *     operationId: search
      *     summary: searches for a song by name and artist
