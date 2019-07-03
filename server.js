@@ -6,6 +6,7 @@ import bodyParser from 'body-parser';
 import morgan from 'morgan';
 import logger from './logger'
 import session from 'cookie-session'
+import ip from 'ip'
 
 const initializeDatabases = require('./db.js')
 
@@ -93,10 +94,12 @@ initializeDatabases().then(db => {
 
 // Start the server
   const server = app.listen(port, async () => {
-    const host = server.address().address;
+    const host = ip.address()
     const {port} = server.address();
-    console.log('Server Listening at http://%s:%s', host, port);
+    console.log('Server Listening at http://%s:%s/api-docs', host, port);
   });
+
+
 
 });
 

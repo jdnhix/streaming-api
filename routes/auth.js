@@ -31,19 +31,23 @@ module.exports.getUserAccess = (app) => {
      */
 
     app.get('/login', (req, res) => {
-        res.redirect('https://accounts.spotify.com/authorize?' +
-            querystring.stringify({
-                response_type: 'code',
-                client_id: client_id,
-                redirect_uri,
-                scope: 'user-follow-read ' +
-                    'user-read-playback-state ' +
-                    'user-read-recently-played ' +
-                    'user-modify-playback-state ' ,
+
+        const authObject = {
+            url: 'https://accounts.spotify.com/authorize?' +
+                querystring.stringify({
+                    response_type: 'code',
+                    client_id: client_id,
+                    redirect_uri,
+                    scope: 'user-follow-read ' +
+                        'user-read-playback-state ' +
+                        'user-read-recently-played ' +
+                        'user-modify-playback-state ' ,
                     // 'user-top-read ',
-                show_dialog: 'false'
-                // state: state todo add this for extra securtiy
-            }))
+                    show_dialog: 'true'
+                    // state: state todo add this for extra securtiy
+                })
+        }
+        res.send(authObject)
     })
 
 
@@ -87,8 +91,16 @@ module.exports.getUserAccess = (app) => {
 
         request.post(authOptions, function (error, response, body) {
            let access_token = body.access_token
-            if (access_token) req.session.access_token = access_token
-            res.send('Logged in!')
+            if(error) {
+                res.statusCode = 400
+                return
+            }
+            if (access_token) {
+                req.session.access_token = access_token
+                res.send('Logged in!')
+            } else {
+                res.send('Login Failed')
+            }
         })
 
 

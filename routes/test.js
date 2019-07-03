@@ -64,7 +64,7 @@ module.exports.spotifySearchTest = (app) => {
   app.get('/spotifySearchTest', async (req, res) => {
     const spotifyToken = await cache.spotifyToken
     const songName = 'ricky'
-    const artistName = 'denzel curry' //todo im still confused on how to encode spaces...sometimes %20 works
+    const artistName = 'denzel curry'
 
     axios.get('https://api.spotify.com/v1/search', {
       headers: {

@@ -1,4 +1,3 @@
-import axios from 'axios'
 import {ObjectId} from "mongodb";
 
 
@@ -6,58 +5,21 @@ module.exports.room = (app, db) => {
 
     /**
      * @swagger
-     * /getAllRooms:
+     * /room:
      *   get:
      *     tags:
      *       - Room
      *     name: Find test
-     *     operationId: getAllRooms
-     *     summary: Retrieves list of all rooms
-     *     consumes:
-     *       - application/json
-     *     produces:
-     *       - application/json
-     *     responses:
-     *       '200':
-     *         description: A single test object
-     *       '401':
-     *         description: No auth token / no user found in db with that name
-     *       '403':
-     *         description: JWT token and username from client don't match
-     */
-
-    app.get('/getAllRooms', (req, res) => {
-        db.development.collection('rooms').find({}).toArray((err, docs) => {
-            if (err) {
-                console.log(err)
-                res.error(err)
-            } else {
-                res.json(docs)
-            }
-        })
-    })
-
-
-    /**
-     * @swagger
-     * /getRoomByID:
-     *   get:
-     *     tags:
-     *       - Room
-     *     name: Find test
-     *     operationId: getRoomByID
-     *     summary: Retrieves list of all rooms
+     *     operationId: room
+     *     summary: Retrieves list of all rooms or specific room by ID
      *     parameters:
-     *      - in: body
-     *        name: body
+     *      - in: query
+     *        name: roomId
      *        schema:
      *          type: object
-     *          required:
-     *              - roomId
      *          properties:
      *              roomId:
      *                  type: string
-     *        required: true
      *        description: numeric ID of room
      *     consumes:
      *       - application/json
@@ -72,19 +34,37 @@ module.exports.room = (app, db) => {
      *         description: JWT token and username from client don't match
      */
 
-    app.get('/getRoomByID', (req, res) => {
-        const roomId = req.query.id
+    app.get('/room', (req, res) => {
+        const roomId = req.query.roomId || ''
 
-        db.development.collection('rooms').find(
-            {_id: ObjectId(roomId)}
-        ).toArray((err, docs) => {
-            if (err) {
-                console.log(err)
-                res.error(err)
-            } else {
-                res.json(docs)
-            }
-        })
+
+        if (roomId) {
+
+            db.development.collection('rooms').find(
+                {_id: ObjectId(roomId)}
+            ).toArray((err, docs) => {
+                if (err) {
+                    console.log(err)
+                    res.error(err)
+                } else {
+                    res.json(docs)
+                }
+            })
+
+        } else {
+
+            db.development.collection('rooms').find({}).toArray((err, docs) => {
+                if (err) {
+                    console.log(err)
+                    res.error(err)
+                } else {
+                    res.json(docs)
+                }
+            })
+
+        }
+
+
     })
 
 
@@ -98,42 +78,42 @@ module.exports.room = (app, db) => {
      *     operationId: addRoom
      *     summary: Adds a new room with an empty queue to the database
      *     parameters:
+     *      - in: query
+     *        name: roomName
+     *        schema:
+     *          type: string
+     *        required: true
+     *        description: name of room
+     *      - in: query
+     *        name: roomType
+     *        schema:
+     *          type: string
+     *          enum: ['public', 'private']
+     *        required: true
+     *        description: type of room (public/private)
+     *      - in: query
+     *        name: hostName
+     *        schema:
+     *          type: string
+     *        required: true
+     *        description: name of room host
      *      - in: body
-     *        name: body
+     *        name: settings
      *        schema:
      *          type: object
      *          required:
-     *              -roomName
-     *              -roomType
-     *              -createdBy
-     *              -participants
-     *              -settings
+     *              -explicitAllowed
      *          properties:
-     *              roomName:
+     *              explicitAllowed:
+     *                  type: boolean
+     *              password:
      *                  type: string
-     *              roomType:
-     *                  type: string
-     *                  enum: ['public', 'private']
-     *              createdBy:
-     *                  type: string
-     *              participants:
+     *              minVoteToPlay:
      *                  type: integer
-     *                  default: 0
-     *              settings:
-     *                  type: object
-     *                  required:
-     *                      -explicitAllowed
-     *                  properties:
-     *                      explicitAllowed:
-     *                          type: boolean
-     *                      password:
-     *                          type: string
-     *                      minVoteToPlay:
-     *                          type: integer
-     *                      downVoteLimit:
-     *                          type: integer
+     *              downVoteLimit:
+     *                  type: integer
      *        required: true
-     *        description: required room information
+     *        description: settings
      *     consumes:
      *       - application/json
      *     responses:
@@ -145,25 +125,27 @@ module.exports.room = (app, db) => {
      *         description: JWT token and username from client don't match
      */
 
+    //todo should i rename this to room and somehow combine it with the deleteRoom route?
     app.post('/addRoom', (req, res) => {
-        db.development.collection('rooms').update(
+        db.development.collection('rooms').updateOne(
             {
-                roomName: req.body.roomName,
-                roomType: req.body.roomType,
-                createdBy: req.body.createdBy,
+                roomName: req.query.roomName,
+                roomType: req.query.roomType,
+                hostName: req.query.hostName,
 
             },
-            { $set:
+            {
+                $set:
                     {
-                        participants: req.body.participants,
-                        Settings: req.body.settings,
+                        audienceSize: 0,
+                        Settings: req.body,
                         Queue: []
                     }
             },
             {
                 upsert: true
             }, (err, result) => {
-                console.log(result)
+                // console.log(result)
                 if (err) {
                     console.log(err)
                     res.error(err)
@@ -183,17 +165,12 @@ module.exports.room = (app, db) => {
      *     operationId: removeRoom
      *     summary: Removes a room
      *     parameters:
-     *      - in: body
-     *        name: body
+     *      - in: query
+     *        name: roomId
      *        schema:
-     *          type: object
-     *          required:
-     *              -roomId
-     *          properties:
-     *              roomId:
-     *                  type: string
+     *          type: string
      *        required: true
-     *        description: body example
+     *        description: id of room
      *     consumes:
      *       - application/json
      *     responses:
@@ -205,8 +182,8 @@ module.exports.room = (app, db) => {
      *         description: JWT token and username from client don't match
      */
 
-    app.post('/removeRoom' ,(req,res) => {
-        db.development.collection('rooms').deleteOne({_id: ObjectId(req.body.roomId)},
+    app.post('/removeRoom', (req, res) => {
+        db.development.collection('rooms').deleteOne({_id: ObjectId(req.query.roomId)},
             (err, result) => {
                 if (err) {
                     console.log(err)
@@ -228,26 +205,36 @@ module.exports.room = (app, db) => {
      *     operationId: addSongToRoom
      *     summary: Adds a song to the queue of a room
      *     parameters:
-     *      - in: body
-     *        name: body
+     *      - in: query
+     *        name: roomId
      *        schema:
-     *          type: object
-     *          required:
-     *              -roomId
-     *              -songName
-     *              -artistName
-     *              -songId
-     *          properties:
-     *              roomId:
-     *                  type: string
-     *              songName:
-     *                  type: string
-     *              artistName:
-     *                  type: string
-     *              songId:
-     *                  type: string
+     *          type: string
      *        required: true
-     *        description: body example
+     *        description: id of room
+     *      - in: query
+     *        name: songName
+     *        schema:
+     *          type: string
+     *        required: true
+     *        description: name of song
+     *      - in: query
+     *        name: artistName
+     *        schema:
+     *          type: string
+     *        required: true
+     *        description: name of artist
+     *      - in: query
+     *        name: songId
+     *        schema:
+     *          type: string
+     *        required: true
+     *        description: id of song
+     *      - in: query
+     *        name: coverArt
+     *        schema:
+     *           type: string
+     *        required: true
+     *        description: url to song cover art
      *     consumes:
      *       - application/json
      *     responses:
@@ -260,11 +247,12 @@ module.exports.room = (app, db) => {
      */
 
     app.post('/addSongToQueue', (req, res) => {
-        const roomId = req.body.roomId;
+        const roomId = req.query.roomId;
         const song = {
-            songName: req.body.songName,
-            artistName: req.body.artistName,
-            songId: req.body.songId,
+            songName: req.query.songName,
+            artistName: req.query.artistName,
+            songId: req.query.songId,
+            coverArt: req.query.coverArt,
             rank: 0
         }
 
@@ -286,7 +274,6 @@ module.exports.room = (app, db) => {
     })
 
 
-
     /**
      * @swagger
      * /removeSongFromQueue:
@@ -297,20 +284,18 @@ module.exports.room = (app, db) => {
      *     operationId: removeSongFromQueue
      *     summary: Removes a song from a queue
      *     parameters:
-     *      - in: body
-     *        name: body
+     *      - in: query
+     *        name: roomId
      *        schema:
-     *          type: object
-     *          required:
-     *              -roomId
-     *              -songId
-     *          properties:
-     *              roomId:
-     *                  type: string
-     *              songId:
-     *                  type: string
+     *          type: string
      *        required: true
-     *        description: body example
+     *        description: roomId
+     *      - in: query
+     *        name: songId
+     *        schema:
+     *          type: string
+     *        required: true
+     *        description: id of song
      *     consumes:
      *       - application/json
      *     responses:
@@ -325,8 +310,8 @@ module.exports.room = (app, db) => {
     app.post('/removeSongFromQueue', (req, res) => {
 
         db.development.collection('rooms').updateOne(
-            {_id: ObjectId(req.body.roomId)},
-            {$pull: {"Queue" : {songId: req.body.songId}}}, (err, result) => {
+            {_id: ObjectId(req.query.roomId)},
+            {$pull: {"Queue": {songId: req.query.songId}}}, (err, result) => {
                 if (err) {
                     console.log(err)
                     res.error(err)
@@ -339,28 +324,31 @@ module.exports.room = (app, db) => {
 
     /**
      * @swagger
-     * /increaseSongRank:
+     * /songRank:
      *   post:
      *     tags:
      *       - Room
-     *     name: Increase Song Rank
-     *     operationId: increaseSongRank
-     *     summary: increases a song's rank in the queue
+     *     name: Change Song Rank
+     *     operationId: songRank
+     *     summary: increments a song's rank in the queue
      *     parameters:
-     *      - in: body
-     *        name: body
+     *      - in: query
+     *        name: roomId
      *        schema:
-     *          type: object
-     *          required:
-     *              -roomId
-     *              -songId
-     *          properties:
-     *              roomId:
-     *                  type: string
-     *              songId:
-     *                  type: string
+     *          type: string
+     *        required: id of room
+     *      - in: query
+     *        name: songId
+     *        schema:
+     *          type: string
+     *        required: id of song
+     *      - in: query
+     *        name: direction
+     *        schema:
+     *          type: string
+     *          enum: ['inc', 'dec']
      *        required: true
-     *        description: body example
+     *        description: determines either increase rank or decrease rank
      *     consumes:
      *       - application/json
      *     responses:
@@ -372,73 +360,40 @@ module.exports.room = (app, db) => {
      *         description: JWT token and username from client don't match
      */
 
-    app.post('/increaseSongRank', (req,res) => {
-        const id = req.body.songId
+    app.post('/songRank', (req, res) => {
+        const id = req.query.songId
+        const direction = req.query.direction
 
-        db.development.collection('rooms').updateOne(
-            {_id: ObjectId(req.body.roomId), "Queue.songId" : id},
-            {$inc: {'Queue.$.rank': 1}}, (err, result) => {
-                if (err) {
-                    console.log(err)
-                    res.error(err)
-                } else {
-                    res.json(result)
+        if(direction === 'inc'){
+            db.development.collection('rooms').updateOne(
+                {_id: ObjectId(req.query.roomId), "Queue.songId": id},
+                {$inc: {'Queue.$.rank': 1}}, (err, result) => {
+                    if (err) {
+                        console.log(err)
+                        res.error(err)
+                    } else {
+                        res.json(result)
+                    }
                 }
-            }
-        )
+            )
+        } else if (direction === 'dec') {
+            db.development.collection('rooms').updateOne(
+                {_id: ObjectId(req.query.roomId), "Queue.songId": id},
+                {$inc: {'Queue.$.rank': -1}}, (err, result) => {
+                    if (err) {
+                        console.log(err)
+                        res.error(err)
+                    } else {
+                        res.json(result)
+                    }
+                }
+            )
+        }
+
+
     })
 
 
-    /**
-     * @swagger
-     * /decreaseSongRank:
-     *   post:
-     *     tags:
-     *       - Room
-     *     name: Decrease Song Rank
-     *     operationId: decreaseSongRank
-     *     summary: decreases a song's rank in the queue
-     *     parameters:
-     *      - in: body
-     *        name: body
-     *        schema:
-     *          type: object
-     *          required:
-     *              -roomId
-     *              -songId
-     *          properties:
-     *              roomId:
-     *                  type: string
-     *              songId:
-     *                  type: string
-     *        required: true
-     *        description: body example
-     *     consumes:
-     *       - application/json
-     *     responses:
-     *       '200':
-     *         description: A single test object
-     *       '401':
-     *         description: No auth token / no user found in db with that name
-     *       '403':
-     *         description: JWT token and username from client don't match
-     */
-
-    app.post('/decreaseSongRank', (req,res) => {
-        const id = req.body.songId
-
-        db.development.collection('rooms').updateOne(
-            {_id: ObjectId(req.body.roomId), "Queue.songId" : id},
-            {$inc: {'Queue.$.rank': -1}}, (err, result) => {
-                if (err) {
-                    console.log(err)
-                    res.error(err)
-                } else {
-                    res.json(result)
-                }
-            }
-        )
-    })
 
 
     /**
@@ -451,15 +406,10 @@ module.exports.room = (app, db) => {
      *     operationId: sortQueue
      *     summary: Sorts queue by song rank
      *     parameters:
-     *      - in: body
-     *        name: body
+     *      - in: query
+     *        name: roomId
      *        schema:
-     *          type: object
-     *          required:
-     *              - roomId
-     *          properties:
-     *              roomId:
-     *                  type: string
+     *          type: string
      *        required: true
      *        description: numeric ID of room
      *     consumes:
@@ -475,10 +425,10 @@ module.exports.room = (app, db) => {
      *         description: JWT token and username from client don't match
      */
 
-    app.post('/sortQueue', (req, res) =>{
+    app.post('/sortQueue', (req, res) => {
         db.development.collection('rooms').update(
-            { _id: ObjectId(req.body.roomId) },
-            { $push: { Queue: { $each: [ ], $sort: 1 } } },(err, result) => {
+            {_id: ObjectId(req.query.roomId)},
+            {$push: {Queue: {$each: [], $sort: {rank: -1}}}}, (err, result) => {
                 if (err) {
                     console.log(err)
                     res.error(err)
