@@ -23,7 +23,6 @@ module.exports.search = (app) => {
      *        name: artistName
      *        schema:
      *          type: string
-     *        required: true
      *        description: name of song's artist
      *     consumes:
      *       - application/json
@@ -39,24 +38,24 @@ module.exports.search = (app) => {
      */
 
     app.get('/search', async  (req, res) => {
-        console.log(req.query.songName)
+        //todo decide if you want to use cache or session
         const spotifyToken = await cache.spotifyToken
         const songName = req.query.songName
         const artistName = req.query.artistName
-        console.log(spotifyToken)
+        console.log('access token', spotifyToken)
 
         const options = {
             url: 'https://api.spotify.com/v1/search',
             headers: {'Authorization': 'Bearer ' + spotifyToken},
             qs: {
-                q: `track:${songName} artist:${artistName}`,
+                q: `track:${songName}`,
                 type: 'track',
             },
             json: true,
         };
 
         request.get(options, function (error, response, body) {
-            console.log(body)
+            // console.log(body)
             res.end(JSON.stringify(body, undefined, 2))
         });
     })

@@ -6,6 +6,7 @@ import bodyParser from 'body-parser';
 import morgan from 'morgan';
 import logger from './logger'
 import session from 'cookie-session'
+import socket from 'socket.io'
 import ip from 'ip'
 
 const initializeDatabases = require('./db.js')
@@ -83,8 +84,6 @@ app.use(bodyParser.urlencoded({
 
 initializeDatabases().then(db => {
 // Routes
-  require('./routes/test').getTest(app);
-  require('./routes/test').spotifySearchTest(app);
 
   require('./routes/auth.js').getUserAccess(app);
   require('./routes/user').user(app);
@@ -98,6 +97,12 @@ initializeDatabases().then(db => {
     const {port} = server.address();
     console.log('Server Listening at http://%s:%s/api-docs', host, port);
   });
+
+  //websocket hook up
+  require('./socket').socket(server, db)
+
+
+
 
 
 

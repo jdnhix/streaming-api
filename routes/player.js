@@ -138,7 +138,11 @@ module.exports.player = (app) => {
         const options = {
             url: 'https://api.spotify.com/v1/me/player/play',
             headers: {'Authorization': 'Bearer ' + access_token},
-            json: true
+            json: true,
+            body: {
+                uris: ['spotify:track:7FEwp8BavoEVE3AnxJDchc']
+            }
+
         };
 
         request.put(options, () => {
@@ -154,7 +158,7 @@ module.exports.player = (app) => {
      *       - Player
      *     name: Seek
      *     operationId: seek
-     *     summary: seeks to the 5 second mark of user's current song
+     *     summary: seeks to the x second mark of user's current song
      *     parameters:
      *      - in: query
      *        name: position

@@ -112,7 +112,6 @@ module.exports.room = (app, db) => {
      *                  type: integer
      *              downVoteLimit:
      *                  type: integer
-     *        required: true
      *        description: settings
      *     consumes:
      *       - application/json
@@ -138,8 +137,9 @@ module.exports.room = (app, db) => {
                 $set:
                     {
                         audienceSize: 0,
-                        Settings: req.body,
-                        Queue: []
+                        settings: req.body,
+                        queue: [],
+                        currentSong: {}
                     }
             },
             {
@@ -247,29 +247,34 @@ module.exports.room = (app, db) => {
      */
 
     app.post('/addSongToQueue', (req, res) => {
-        const roomId = req.query.roomId;
+        const params = req.body.params
+
+        const roomId = params.roomId;
         const song = {
-            songName: req.query.songName,
-            artistName: req.query.artistName,
-            songId: req.query.songId,
-            coverArt: req.query.coverArt,
+            songName: params.songName,
+            artistName: params.artistName,
+            songId: params.songId,
+            coverArt: params.coverArt,
+            explicit: params.explicit,
             rank: 0
         }
 
+        console.log(song)
+
         db.development.collection('rooms').updateOne(
             {_id: ObjectId(roomId)},
-            {$push: {Queue: song}},
+            {$push: {queue: song}},
             {
                 upsert: true
-            }, (err, result) => {
-                if (err) {
-                    console.log(err)
-                    res.error(err)
-                } else {
-                    res.json(result)
-                }
+        }, (err, result) => {
+            if (err) {
+                console.log(err)
+                res.error(err)
+            } else {
+                res.json(result)
             }
-        )
+        }
+    )
 
     })
 
@@ -308,10 +313,11 @@ module.exports.room = (app, db) => {
      */
 
     app.post('/removeSongFromQueue', (req, res) => {
+        const params = req.body.params
 
         db.development.collection('rooms').updateOne(
-            {_id: ObjectId(req.query.roomId)},
-            {$pull: {"Queue": {songId: req.query.songId}}}, (err, result) => {
+            {_id: ObjectId(params.roomId)},
+            {$pull: {"queue": {songId: params.songId}}}, (err, result) => {
                 if (err) {
                     console.log(err)
                     res.error(err)
@@ -361,13 +367,15 @@ module.exports.room = (app, db) => {
      */
 
     app.post('/songRank', (req, res) => {
-        const id = req.query.songId
-        const direction = req.query.direction
+        const {params} = req.body
 
-        if(direction === 'inc'){
+        const id = params.songId
+        const direction = params.direction
+
+        if (direction === 'inc') {
             db.development.collection('rooms').updateOne(
-                {_id: ObjectId(req.query.roomId), "Queue.songId": id},
-                {$inc: {'Queue.$.rank': 1}}, (err, result) => {
+                {_id: ObjectId(params.roomId), "queue.songId": id},
+                {$inc: {'queue.$.rank': 1}}, (err, result) => {
                     if (err) {
                         console.log(err)
                         res.error(err)
@@ -378,8 +386,8 @@ module.exports.room = (app, db) => {
             )
         } else if (direction === 'dec') {
             db.development.collection('rooms').updateOne(
-                {_id: ObjectId(req.query.roomId), "Queue.songId": id},
-                {$inc: {'Queue.$.rank': -1}}, (err, result) => {
+                {_id: ObjectId(params.roomId), "queue.songId": id},
+                {$inc: {'queue.$.rank': -1}}, (err, result) => {
                     if (err) {
                         console.log(err)
                         res.error(err)
@@ -392,8 +400,6 @@ module.exports.room = (app, db) => {
 
 
     })
-
-
 
 
     /**
@@ -426,9 +432,11 @@ module.exports.room = (app, db) => {
      */
 
     app.post('/sortQueue', (req, res) => {
+        const { params } = req.body
+
         db.development.collection('rooms').update(
-            {_id: ObjectId(req.query.roomId)},
-            {$push: {Queue: {$each: [], $sort: {rank: -1}}}}, (err, result) => {
+            {_id: ObjectId(params.roomId)},
+            {$push: {queue: {$each: [], $sort: {rank: -1}}}}, (err, result) => {
                 if (err) {
                     console.log(err)
                     res.error(err)
@@ -437,5 +445,121 @@ module.exports.room = (app, db) => {
                 }
             }
         )
+    })
+
+
+    /**
+     * @swagger
+     * /testAdd:
+     *   post:
+     *     tags:
+     *       - Room
+     *     name: Test Add
+     *     operationId: testAdd
+     *     summary: test add
+     *     parameters:
+     *      - in: body
+     *        name: songJSON
+     *        schema:
+     *          type: object
+     *        required: true
+     *        description: json of song
+     *      - in: query
+     *        name: roomId
+     *        schema:
+     *          type: string
+     *        required: true
+     *     consumes:
+     *       - application/json
+     *     produces:
+     *       - application/json
+     *     responses:
+     *       '200':
+     *         description: A single test object
+     *       '401':
+     *         description: No auth token / no user found in db with that name
+     *       '403':
+     *         description: JWT token and username from client don't match
+     */
+
+    app.post('/testAdd', (req, res) => {
+        const roomId = req.query.roomId;
+        const song = {
+            songName: req.body.tracks.items[0].name,
+            artistName: req.body.tracks.items[0].artists[0].name,
+            songId: req.body.tracks.items[0].uri,
+            coverArt: req.body.tracks.items[0].album.images[0].url,
+            rank: 0
+        }
+
+        db.development.collection('rooms').updateOne(
+            {_id: ObjectId(roomId)},
+            {$push: {queue: song}},
+            {
+                upsert: true
+            }, (err, result) => {
+                if (err) {
+                    console.log(err)
+                    res.error(err)
+                } else {
+                    res.json(result)
+                }
+            }
+        )
+    })
+
+
+
+
+    /**
+     * @swagger
+     * /popQueue:
+     *   post:
+     *     tags:
+     *       - Room
+     *     name: Pop Queue
+     *     operationId: popQueue
+     *     summary: pops queue
+     *     parameters:
+     *      - in: query
+     *        name: roomId
+     *        schema:
+     *          type: string
+     *        required: true
+     *        description: id of room
+     *     consumes:
+     *       - application/json
+     *     produces:
+     *       - application/json
+     *     responses:
+     *       '200':
+     *         description: A single test object
+     *       '401':
+     *         description: No auth token / no user found in db with that name
+     *       '403':
+     *         description: JWT token and username from client don't match
+     */
+
+    app.post('/popQueue', (req, res) => {
+
+        db.development.collection('rooms').updateOne(
+            {_id: ObjectId(req.query.roomId)},
+            [
+                {$set: {currentSong: {$arrayElemAt : {queue: 0}}}},
+            ]
+
+
+            //todo delete this route
+
+            // {$pop: {queue: -1}},  (err, result) => {
+            //     if (err) {
+            //         console.log(err)
+            //         res.error(err)
+            //     } else {
+            //         res.json(result)
+            //     }
+            // }
+        )
+
     })
 }

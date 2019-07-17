@@ -32,22 +32,20 @@ module.exports.getUserAccess = (app) => {
 
     app.get('/login', (req, res) => {
 
-        const authObject = {
-            url: 'https://accounts.spotify.com/authorize?' +
-                querystring.stringify({
-                    response_type: 'code',
-                    client_id: client_id,
-                    redirect_uri,
-                    scope: 'user-follow-read ' +
-                        'user-read-playback-state ' +
-                        'user-read-recently-played ' +
-                        'user-modify-playback-state ' ,
-                    // 'user-top-read ',
-                    show_dialog: 'true'
-                    // state: state todo add this for extra securtiy
-                })
-        }
-        res.send(authObject)
+        res.redirect('https://accounts.spotify.com/authorize?' +
+            querystring.stringify({
+                response_type: 'code',
+                client_id: client_id,
+                redirect_uri,
+                scope: 'user-follow-read ' +
+                    'user-read-playback-state ' +
+                    'user-read-recently-played ' +
+                    'user-modify-playback-state ' ,
+                // 'user-top-read ',
+                show_dialog: 'true'
+                // state: state todo add this for extra securtiy
+            }))
+
     })
 
 
@@ -90,7 +88,7 @@ module.exports.getUserAccess = (app) => {
         };
 
         request.post(authOptions, function (error, response, body) {
-           let access_token = body.access_token
+            let access_token = body.access_token
             if(error) {
                 res.statusCode = 400
                 return
@@ -103,8 +101,53 @@ module.exports.getUserAccess = (app) => {
             }
         })
 
-
     });
+
+
+    /**
+     * @swagger
+     * /auth:
+     *   get:
+     *     tags:
+     *       - User
+     *     name: Find test
+     *     operationId: auth
+     *     summary: authenticates spotify user
+     *     consumes:
+     *       - application/json
+     *     produces:
+     *       - application/json
+     *     responses:
+     *       '200':
+     *         description: A single test object
+     *       '401':
+     *         description: No auth token / no user found in db with that name
+     *       '403':
+     *         description: JWT token and username from client don't match
+     */
+
+    app.get('/auth', (req, res) => {
+        const authObject = {
+            url: 'https://accounts.spotify.com/authorize?' +
+                querystring.stringify({
+                    response_type: 'code',
+                    client_id: client_id,
+                    redirect_uri,
+                    scope: 'user-follow-read ' +
+                        'user-read-playback-state ' +
+                        'user-read-recently-played ' +
+                        'user-modify-playback-state ' ,
+                    // 'user-top-read ',
+                    show_dialog: 'true'
+                    // state: state todo add this for extra securtiy
+                })
+        }
+        res.send(authObject)
+
+    })
+
+
+
 
     /**
      * @swagger
