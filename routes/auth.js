@@ -42,7 +42,7 @@ module.exports.getUserAccess = (app) => {
                     'user-read-recently-played ' +
                     'user-modify-playback-state ' ,
                 // 'user-top-read ',
-                show_dialog: 'true'
+                show_dialog: 'false'
                 // state: state todo add this for extra securtiy
             }))
 

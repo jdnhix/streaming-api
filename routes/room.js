@@ -246,6 +246,7 @@ module.exports.room = (app, db) => {
      *         description: JWT token and username from client don't match
      */
 
+    //todo get rid of this later
     app.post('/addSongToQueue', (req, res) => {
         const params = req.body.params
 
@@ -539,7 +540,7 @@ module.exports.room = (app, db) => {
      *       '403':
      *         description: JWT token and username from client don't match
      */
-
+    //todo maybe delete this route
     app.post('/popQueue', (req, res) => {
 
         db.development.collection('rooms').updateOne(
@@ -549,7 +550,7 @@ module.exports.room = (app, db) => {
             ]
 
 
-            //todo delete this route
+
 
             // {$pop: {queue: -1}},  (err, result) => {
             //     if (err) {

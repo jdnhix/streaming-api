@@ -38,7 +38,6 @@ module.exports.search = (app) => {
      */
 
     app.get('/search', async  (req, res) => {
-        //todo decide if you want to use cache or session
         const spotifyToken = await cache.spotifyToken
         const songName = req.query.songName
         const artistName = req.query.artistName

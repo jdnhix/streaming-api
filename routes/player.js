@@ -1,4 +1,5 @@
 import request from 'request'
+import cache from '../cache'
 
 module.exports.player = (app) => {
 
@@ -96,12 +97,13 @@ module.exports.player = (app) => {
      *         description: JWT token and username from client don't match
      */
 
-    app.post('/pause', (req, res) => {
-        const access_token = req.session.access_token
+    app.post('/pause', async (req, res) => {
+        const spotifyToken = await cache.spotifyToken
+        console.log(spotifyToken)
 
         const options = {
             url: 'https://api.spotify.com/v1/me/player/pause',
-            headers: {'Authorization': 'Bearer ' + access_token},
+            headers: {'Authorization': 'Bearer ' + spotifyToken},
             json: true
         };
 
