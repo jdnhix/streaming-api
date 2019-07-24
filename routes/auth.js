@@ -3,8 +3,8 @@ import request from 'request'
 
 const client_id = '85ec7eb9dc0543fc9408c8ba05fd2bdb';
 const client_secret = 'c9192d5af4bb450da0770bf5b23f4e49';
-const redirect_uri = 'http://localhost:3000/user'
-
+// const redirect_uri = 'http://localhost:3000/user'
+const redirect_uri = 'http://192.168.50.80:8081/setup'
 
 module.exports.getUserAccess = (app) => {
 
@@ -40,9 +40,13 @@ module.exports.getUserAccess = (app) => {
                 scope: 'user-follow-read ' +
                     'user-read-playback-state ' +
                     'user-read-recently-played ' +
+                    'streaming ' +
+                    'user-read-email ' +
+                    'user-read-birthdate ' +
+                    'user-read-private ' +
                     'user-modify-playback-state ' ,
                 // 'user-top-read ',
-                show_dialog: 'false'
+                show_dialog: 'true'
                 // state: state todo add this for extra securtiy
             }))
 
@@ -70,7 +74,7 @@ module.exports.getUserAccess = (app) => {
      *       '403':
      *         description: JWT token and username from client don't match
      */
-
+    //todo replace this with the other /user when done
     app.get('/user', (req, res) => {
         const code = req.query.code;
 
@@ -96,6 +100,39 @@ module.exports.getUserAccess = (app) => {
             if (access_token) {
                 req.session.access_token = access_token
                 res.send('Logged in!')
+            } else {
+                res.send('Login Failed')
+            }
+        })
+
+    });
+
+
+    app.post('/user2', (req, res) => {
+        // console.log(req.body.code)
+        const code = req.body.code
+
+        var authOptions = {
+            url: 'https://accounts.spotify.com/api/token',
+            form: {
+                code: code,
+                redirect_uri: redirect_uri,
+                grant_type: 'authorization_code'
+            },
+            headers: {
+                'Authorization': 'Basic ' + Buffer.from(client_id + ':' + client_secret).toString('base64')
+            },
+            json: true
+        };
+
+        request.post(authOptions, function (error, response, body) {
+            let access_token = body.access_token
+            if(error) {
+                res.statusCode = 400
+                return
+            }
+            if (access_token) {
+                res.send(access_token)
             } else {
                 res.send('Login Failed')
             }
@@ -136,6 +173,10 @@ module.exports.getUserAccess = (app) => {
                     scope: 'user-follow-read ' +
                         'user-read-playback-state ' +
                         'user-read-recently-played ' +
+                        'streaming ' +
+                        'user-read-email ' +
+                        'user-read-birthdate ' +
+                        'user-read-private ' +
                         'user-modify-playback-state ' ,
                     // 'user-top-read ',
                     show_dialog: 'true'

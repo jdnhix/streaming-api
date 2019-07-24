@@ -25,8 +25,8 @@ module.exports.player = (app) => {
      *         description: JWT token and username from client don't match
      */
 
-    app.get('/currentPlayback', (req, res) => {
-        const access_token = req.session.access_token
+    app.post('/currentPlayback', (req, res) => {
+        const access_token = req.body.token
 
         const options = {
             url: 'https://api.spotify.com/v1/me/player',
@@ -35,7 +35,7 @@ module.exports.player = (app) => {
         };
 
         request.get(options, function (error, response, body) {
-            res.end(JSON.stringify(body, undefined, 2))
+            res.send(body)
         });
     })
 
@@ -71,7 +71,7 @@ module.exports.player = (app) => {
         };
 
         request.get(options, function (error, response, body) {
-            res.end(JSON.stringify(body, undefined, 2))
+            res.end(body)
         });
     })
 
@@ -98,8 +98,8 @@ module.exports.player = (app) => {
      */
 
     app.post('/pause', async (req, res) => {
-        const spotifyToken = await cache.spotifyToken
-        console.log(spotifyToken)
+        const spotifyToken = req.body.token
+        // console.log(req.body.token)
 
         const options = {
             url: 'https://api.spotify.com/v1/me/player/pause',
@@ -135,15 +135,15 @@ module.exports.player = (app) => {
      */
 
     app.post('/play', (req, res) => {
-        const access_token = req.session.access_token
+        const access_token = req.body.token
 
         const options = {
             url: 'https://api.spotify.com/v1/me/player/play',
             headers: {'Authorization': 'Bearer ' + access_token},
             json: true,
-            body: {
-                uris: ['spotify:track:7FEwp8BavoEVE3AnxJDchc']
-            }
+            // body: {
+            //     uris: ['spotify:track:7FEwp8BavoEVE3AnxJDchc', 'spotify:track:01a0H5HPeCMOktdRMygi3t']
+            // }
 
         };
 
@@ -262,7 +262,7 @@ module.exports.player = (app) => {
      */
 
     app.post('/next', (req, res) => {
-        const access_token = req.session.access_token
+        const access_token = req.body.token
 
         const options = {
             url: 'https://api.spotify.com/v1/me/player/next',
@@ -298,7 +298,7 @@ module.exports.player = (app) => {
      */
 
     app.post('/previous', (req, res) => {
-        const access_token = req.session.access_token
+        const access_token = req.body.token
 
         const options = {
             url: 'https://api.spotify.com/v1/me/player/previous',

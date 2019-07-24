@@ -7,6 +7,7 @@ import morgan from 'morgan';
 import logger from './logger'
 import session from 'cookie-session'
 import socket from 'socket.io'
+import connectSocket from 'spotify-connect-ws'
 import ip from 'ip'
 
 const initializeDatabases = require('./db.js')

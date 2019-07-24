@@ -1,9 +1,12 @@
 import socket from 'socket.io'
+import connectSocket from 'spotify-connect-ws'
 import {ObjectId} from 'mongodb'
 
 module.exports.socket = (server, db) => {
 
     const io = socket(server)
+
+    io.of('connect').on('connection', connectSocket)
 
     io.on('connection', (socket) => {
         console.log("Socket Connection Established with ID :" + socket.id)

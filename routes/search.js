@@ -40,7 +40,7 @@ module.exports.search = (app) => {
     app.get('/search', async  (req, res) => {
         const spotifyToken = await cache.spotifyToken
         const songName = req.query.songName
-        const artistName = req.query.artistName
+        const artistName = req.query.artistName //todo get rid of this
         console.log('access token', spotifyToken)
 
         const options = {
