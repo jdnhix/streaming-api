@@ -91,7 +91,7 @@ initializeDatabases().then(db => {
   require('./routes/search').search(app);
   require('./routes/room').room(app, db);
 
-// Start the server
+  // Start the server
   const server = app.listen(port, async () => {
     const host = ip.address()
     const {port} = server.address();
@@ -100,10 +100,6 @@ initializeDatabases().then(db => {
 
   //websocket hook up
   require('./socket').socket(server, db)
-
-
-
-
 
 
 });

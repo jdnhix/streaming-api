@@ -366,7 +366,7 @@ module.exports.room = (app, db) => {
      *       '403':
      *         description: JWT token and username from client don't match
      */
-
+//todo delete this
     app.post('/songRank', (req, res) => {
         const {params} = req.body
 
