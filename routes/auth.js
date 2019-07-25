@@ -3,8 +3,8 @@ import request from 'request'
 
 const client_id = '85ec7eb9dc0543fc9408c8ba05fd2bdb';
 const client_secret = 'c9192d5af4bb450da0770bf5b23f4e49';
-// const redirect_uri = 'http://localhost:3000/user'
-const redirect_uri = 'http://192.168.50.80:8081/setup'
+// const redirect_uri = 'http://192.168.50.80:8081/setup'
+const redirect_uri = 'http://192.168.1.71:8081/setup'
 
 module.exports.getUserAccess = (app) => {
 
