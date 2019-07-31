@@ -127,15 +127,16 @@ module.exports.socket = (server, db) => {
                     headers: {'Authorization': 'Bearer ' + access_token},
                     json: true,
                     body: {
-                        uris: [params.song.songId]
+                        uris: [params.song.uri]
                     }
                 };
 
                 request.put(options, async () => {
                     console.log('song started')
+                    //set timeout here to prevent any weird overlap
                     setTimeout( () => {
                         socket.poll(params.token)
-                    }, 1000)
+                    }, 500)
                 });
 
                 db.development.collection('rooms').updateOne(
@@ -169,9 +170,10 @@ module.exports.socket = (server, db) => {
 
                 request.put(options, () => {
                     console.log('song resumed')
+                    //set timeout here to prevent any weird overlap
                     setTimeout( () => {
                         socket.poll(params.token)
-                    }, 1000)
+                    }, 500)
                 })
             }
 
@@ -212,7 +214,7 @@ module.exports.socket = (server, db) => {
                     if (err) {
                         console.log(err)
                     } else {
-                        console.log(result)
+                        // console.log(result)
                     }
                 }
             )
@@ -239,7 +241,7 @@ module.exports.socket = (server, db) => {
                 }
             )
 
-            socket.emit('clearCurrentPlaying')
+            socket.emit('clearCurrentSong', currentSong)
         })
     })
 }
