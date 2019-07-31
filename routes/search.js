@@ -38,10 +38,10 @@ module.exports.search = (app) => {
      */
 
     app.get('/search', async  (req, res) => {
-        const spotifyToken = await cache.spotifyToken
+        // const spotifyToken = await cache.spotifyToken todo may need to switch back to this token
+        const spotifyToken = req.query.accessToken
         const songName = req.query.songName
-        const artistName = req.query.artistName //todo get rid of this
-        console.log('access token', spotifyToken)
+        // console.log('access token', spotifyToken)
 
         const options = {
             url: 'https://api.spotify.com/v1/search',

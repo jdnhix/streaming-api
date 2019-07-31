@@ -2,12 +2,17 @@ import socket from 'socket.io'
 import {ObjectId} from 'mongodb'
 import request from 'request'
 
+const events = require('events')
+
+
 module.exports.socket = (server, db) => {
 
+    const eventEmitter = new events.EventEmitter();
     const io = socket(server)
 
     io.on('connection', (socket) => {
         console.log("Socket Connection Established with ID :" + socket.id)
+
 
         socket.on("addSongToQueue", async (song) => {
             song.rank = 0
@@ -87,8 +92,34 @@ module.exports.socket = (server, db) => {
             // socket.emit('addRoom', room)
         })
 
+        socket.poll = (token) => {
+            const access_token = token
+
+            const options = {
+                url: 'https://api.spotify.com/v1/me/player',
+                headers: {'Authorization': 'Bearer ' + access_token},
+                json: true
+            };
+
+            request.get(options, function (error, response, body) {
+                if (body && body.is_playing) {
+                    console.log(`playing at ${body.progress_ms} ms`)
+                    setTimeout(() => {
+                        socket.poll(token)
+                    }, 1000)
+                } else {
+                    if(body && body.progress_ms === 0){
+                        console.log('music stopped')
+                        socket.emit('musicStop')
+                    } else {
+                        console.log('music paused')
+                        socket.emit('musicPause')
+                    }
+                }
+            })
+        }
+
         socket.on('playSong', async (params) => {
-            // console.log(params)
             if (params.song) {
                 const access_token = params.token
                 const options = {
@@ -100,8 +131,11 @@ module.exports.socket = (server, db) => {
                     }
                 };
 
-                request.put(options, () => {
-                    console.log('song played')
+                request.put(options, async () => {
+                    console.log('song started')
+                    setTimeout( () => {
+                        socket.poll(params.token)
+                    }, 1000)
                 });
 
                 db.development.collection('rooms').updateOne(
@@ -134,7 +168,10 @@ module.exports.socket = (server, db) => {
                 };
 
                 request.put(options, () => {
-                    console.log('song played')
+                    console.log('song resumed')
+                    setTimeout( () => {
+                        socket.poll(params.token)
+                    }, 1000)
                 })
             }
 
@@ -180,8 +217,33 @@ module.exports.socket = (server, db) => {
                 }
             )
 
-
             socket.emit('changeSongRank', params)
+        })
+
+        socket.on('clearCurrentSong', (params) => {
+            const currentSong = {
+                songName: 'no current song',
+                artistName: 'no current song',
+                uri: '',
+                coverArt: ''
+            }
+
+            db.development.collection('rooms').updateOne(
+                {_id: ObjectId(params.roomId)},
+                {$set: {currentSong: currentSong}}, (err, result) => {
+                    if (err) {
+                        console.log(err)
+                    } else {
+                        // console.log(result)
+                    }
+                }
+            )
+
+            socket.emit('clearCurrentPlaying')
         })
     })
 }
+
+
+
+

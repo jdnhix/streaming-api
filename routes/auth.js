@@ -3,8 +3,8 @@ import request from 'request'
 
 const client_id = '85ec7eb9dc0543fc9408c8ba05fd2bdb';
 const client_secret = 'c9192d5af4bb450da0770bf5b23f4e49';
-const redirect_uri = 'http://192.168.50.94:8081/setup'
-// const redirect_uri = 'http://192.168.1.71:8081/setup'
+const redirect_uri = 'http://192.168.50.79:8081/setup'
+// const redirect_uri = 'http://10.0.0.78:8081/setup'
 
 module.exports.getUserAccess = (app) => {
 
@@ -126,13 +126,12 @@ module.exports.getUserAccess = (app) => {
         };
 
         request.post(authOptions, function (error, response, body) {
-            let access_token = body.access_token
             if(error) {
                 res.statusCode = 400
                 return
             }
-            if (access_token) {
-                res.send(access_token)
+            if (body) {
+                res.send(body)
             } else {
                 res.send('Login Failed')
             }
@@ -212,10 +211,10 @@ module.exports.getUserAccess = (app) => {
      *         description: JWT token and username from client don't match
      */
 
-    app.get('/refresh_token', function (req, res) {
+    app.post('/refresh_token', function (req, res) {
 
         // requesting access token from refresh token
-        var refresh_token = req.query.refresh_token;
+        var refresh_token = req.body.refreshToken;
         var authOptions = {
             url: 'https://accounts.spotify.com/api/token',
             headers: {'Authorization': 'Basic ' + (new Buffer(client_id + ':' + client_secret).toString('base64'))},
