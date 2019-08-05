@@ -32,6 +32,7 @@ module.exports.socket = (server, db) => {
                 })
 
             //emit socket here
+            console.log('socket emitted back to client')
             socket.emit('addSongToQueue', song)
         })
 
