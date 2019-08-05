@@ -4,7 +4,7 @@ import request from 'request'
 const client_id = '85ec7eb9dc0543fc9408c8ba05fd2bdb';
 const client_secret = 'c9192d5af4bb450da0770bf5b23f4e49';
 const redirect_uri = 'http://192.168.50.79:8081/setup'
-// const redirect_uri = 'http://10.0.0.78:8081/setup'
+// const redirect_uri = 'http://jdh-symphony-bucket.s3-website-us-east-1.amazonaws.com/setup'
 
 module.exports.getUserAccess = (app) => {
 
