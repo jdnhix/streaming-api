@@ -14,6 +14,22 @@ module.exports.socket = (server, db) => {
         console.log("Socket Connection Established with ID :" + socket.id)
 
 
+        socket.on('join', (roomId) => {
+            console.log(`CONNECTION: socket ${socket.id} joined room ${roomId}`)
+            socket.join(`${roomId}`)
+            io.in(roomId).emit("changeAudienceSize", {dir: 'inc', roomId: roomId})
+        })
+
+        socket.on('leave', (roomId) => {
+            console.log(`DISCONNECTION: socket ${socket.id} left room ${roomId}`)
+            socket.leave(`${roomId}`)
+        })
+
+
+
+
+
+
         socket.on("addSongToQueue", async (song) => {
             song.rank = 0
             const roomId = song.roomId
@@ -32,8 +48,7 @@ module.exports.socket = (server, db) => {
                 })
 
             //emit socket here
-            console.log('socket emitted back to client')
-            socket.emit('addSongToQueue', song)
+            io.in(roomId).emit('addSongToQueue', song)
         })
 
         socket.on("removeQueueItem", async (params) => {
@@ -49,7 +64,7 @@ module.exports.socket = (server, db) => {
                 }
             )
 
-            socket.emit("removeQueueItem", params)
+            io.in(params.roomId).emit("removeQueueItem", params)
         })
 
         socket.on('addRoom', async (room) => {
@@ -76,7 +91,8 @@ module.exports.socket = (server, db) => {
                             password: room.password,
                             downVoteLimit: room.downVoteLimit,
                             queue: room.queue,
-                            currentSong: room.currentSong
+                            currentSong: room.currentSong,
+                            accessToken: room.accessToken
                         }
                 },
                 {
@@ -87,10 +103,11 @@ module.exports.socket = (server, db) => {
                     if (err) {
                         console.log(err)
                     } else {
-                        // console.log(result)
+                        console.log(room._id)
+                        socket.emit('setHostId', room)
                     }
                 })
-            // socket.emit('addRoom', room)
+            io.emit('addRoom', room)
         })
 
         socket.poll = (token) => {
@@ -104,7 +121,7 @@ module.exports.socket = (server, db) => {
 
             request.get(options, function (error, response, body) {
                 if (body && body.is_playing) {
-                    console.log(`playing at ${body.progress_ms} ms`)
+                    // console.log(`playing at ${body.progress_ms} ms`)
                     setTimeout(() => {
                         socket.poll(token)
                     }, 1000)
@@ -178,7 +195,7 @@ module.exports.socket = (server, db) => {
                 })
             }
 
-            socket.emit('playSong', params)
+            io.in(params.roomId).emit('playSong', params)
         })
 
         socket.on('changeSongRank', async (params) => {
@@ -220,7 +237,7 @@ module.exports.socket = (server, db) => {
                 }
             )
 
-            socket.emit('changeSongRank', params)
+            io.in(params.roomId).emit('changeSongRank', params)
         })
 
         socket.on('clearCurrentSong', (params) => {
@@ -242,7 +259,7 @@ module.exports.socket = (server, db) => {
                 }
             )
 
-            socket.emit('clearCurrentSong', currentSong)
+            io.in(params.roomId).emit('clearCurrentSong', currentSong)
         })
     })
 }
