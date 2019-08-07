@@ -6,7 +6,7 @@ const client_id = '85ec7eb9dc0543fc9408c8ba05fd2bdb';
 const client_secret = 'c9192d5af4bb450da0770bf5b23f4e49';
 let redirect_uri = ''
 
-if(ip.address() === '172.31.35.143'){
+if(ip.address() === '172.31.83.49'){
     // redirect_uri = 'http://jdh-symphony-bucket.s3-website-us-east-1.amazonaws.com/setup'//delete this?
     redirect_uri = 'http://d2092ntamk9msk.cloudfront.net/setup'
 } else {
