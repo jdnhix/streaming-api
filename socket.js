@@ -64,6 +64,20 @@ module.exports.socket = (server, db) => {
 			socket.leave(`${roomId}`)
 		})
 
+		socket.on('closeRoom', (params) => {
+
+			db.development.collection('rooms').deleteOne({ _id: ObjectId(params.roomId) },
+				(err, result) => {
+					if (err) {
+						console.log(err)
+					} else {
+						// console.log(result)
+					}
+				})
+
+			io.emit('closeRoom', params)
+		})
+
 		// Queue events
 		// todo find where the db queue is being sorted
 		socket.on('addSongToQueue', async (song) => {
