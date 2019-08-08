@@ -1,6 +1,6 @@
 import request from 'request'
-import cache from '../cache'
 
+// phase these out once they aren't needed for sure
 module.exports.player = (app) => {
 
     /**
@@ -24,20 +24,19 @@ module.exports.player = (app) => {
      *       '403':
      *         description: JWT token and username from client don't match
      */
+	app.post('/currentPlayback', (req, res) => {
+		const access_token = req.body.token
 
-    app.post('/currentPlayback', (req, res) => {
-        const access_token = req.body.token
+		const options = {
+			url: 'https://api.spotify.com/v1/me/player',
+			headers: { Authorization: `Bearer ${access_token}` },
+			json: true
+		};
 
-        const options = {
-            url: 'https://api.spotify.com/v1/me/player',
-            headers: {'Authorization': 'Bearer ' + access_token},
-            json: true
-        };
-
-        request.get(options, function (error, response, body) {
-            res.send(body)
-        });
-    })
+		request.get(options, (error, response, body) => {
+			res.send(body)
+		});
+	})
 
     /**
      * @swagger
@@ -60,20 +59,19 @@ module.exports.player = (app) => {
      *       '403':
      *         description: JWT token and username from client don't match
      */
+	app.get('/recentlyPlayed', (req, res) => {
+		const access_token = req.session.access_token
 
-    app.get('/recentlyPlayed', (req, res) => {
-        const access_token = req.session.access_token
+		const options = {
+			url: 'https://api.spotify.com/v1/me/player/recently-played',
+			headers: { Authorization: `Bearer ${access_token}` },
+			json: true
+		};
 
-        const options = {
-            url: 'https://api.spotify.com/v1/me/player/recently-played',
-            headers: {'Authorization': 'Bearer ' + access_token},
-            json: true
-        };
-
-        request.get(options, function (error, response, body) {
-            res.end(body)
-        });
-    })
+		request.get(options, (error, response, body) => {
+			res.end(body)
+		});
+	})
 
     /**
      * @swagger
@@ -96,21 +94,20 @@ module.exports.player = (app) => {
      *       '403':
      *         description: JWT token and username from client don't match
      */
-
-    app.post('/pause', async (req, res) => {
-        const spotifyToken = req.body.token
+	app.post('/pause', async (req, res) => {
+		const spotifyToken = req.body.token
         // console.log(req.body.token)
 
-        const options = {
-            url: 'https://api.spotify.com/v1/me/player/pause',
-            headers: {'Authorization': 'Bearer ' + spotifyToken},
-            json: true
-        };
+		const options = {
+			url: 'https://api.spotify.com/v1/me/player/pause',
+			headers: { Authorization: `Bearer ${spotifyToken}` },
+			json: true
+		};
 
-        request.put(options, () => {
-            res.end('music paused!')
-        });
-    })
+		request.put(options, () => {
+			res.end('music paused!')
+		});
+	})
 
     /**
      * @swagger
@@ -133,24 +130,24 @@ module.exports.player = (app) => {
      *       '403':
      *         description: JWT token and username from client don't match
      */
+	app.post('/play', (req, res) => {
+		const access_token = req.body.token
 
-    app.post('/play', (req, res) => {
-        const access_token = req.body.token
-
-        const options = {
-            url: 'https://api.spotify.com/v1/me/player/play',
-            headers: {'Authorization': 'Bearer ' + access_token},
-            json: true,
+		const options = {
+			url: 'https://api.spotify.com/v1/me/player/play',
+			headers: { Authorization: `Bearer ${access_token}` },
+			json: true,
             // body: {
+            // eslint-disable-next-line max-len
             //     uris: ['spotify:track:7FEwp8BavoEVE3AnxJDchc', 'spotify:track:01a0H5HPeCMOktdRMygi3t']
             // }
 
-        };
+		};
 
-        request.put(options, () => {
-            res.end('music started!')
-        });
-    })
+		request.put(options, () => {
+			res.end('music started!')
+		});
+	})
 
     /**
      * @swagger
@@ -180,24 +177,23 @@ module.exports.player = (app) => {
      *       '403':
      *         description: JWT token and username from client don't match
      */
+	app.post('/seek', (req, res) => {
+		const { access_token } = req.session
+        const { position } = req.query
 
-    app.post('/seek', (req, res) => {
-        const access_token = req.session.access_token;
-        const {position} = req.query;
+		const options = {
+			url: 'https://api.spotify.com/v1/me/player/seek',
+			headers: { Authorization: `Bearer ${access_token}` },
+			json: true,
+			qs: {
+				position_ms: position
+			}
+		};
 
-        const options = {
-            url: 'https://api.spotify.com/v1/me/player/seek',
-            headers: {'Authorization': 'Bearer ' + access_token},
-            json: true,
-            qs: {
-                position_ms: position
-            }
-        };
-
-        request.put(options, () => {
-            res.end(`seeked to ${position / 1000} seconds!`)
-        });
-    })
+		request.put(options, () => {
+			res.end(`seeked to ${position / 1000} seconds!`)
+		});
+	})
 
     /**
      * @swagger
@@ -220,24 +216,23 @@ module.exports.player = (app) => {
      *       '403':
      *         description: JWT token and username from client don't match
      */
+    // todo this one doesnt work
+	app.post('/volume', (req, res) => {
+		const { access_token } = req.session
 
-    //todo this one doesnt work
-    app.post('/volume', (req, res) => {
-        const access_token = req.session.access_token
+		const options = {
+			url: 'https://api.spotify.com/v1/me/player/volume',
+			headers: { Authorization: `Bearer ${access_token}` },
+			json: true,
+			qs: {
+				volume_percent: 10
+			}
+		};
 
-        const options = {
-            url: 'https://api.spotify.com/v1/me/player/volume',
-            headers: {'Authorization': 'Bearer ' + access_token},
-            json: true,
-            qs: {
-                volume_percent: 10
-            }
-        };
-
-        request.put(options, () => {
-            res.end('volume changed to 10%!')
-        });
-    })
+		request.put(options, () => {
+			res.end('volume changed to 10%!')
+		});
+	})
 
     /**
      * @swagger
@@ -260,20 +255,19 @@ module.exports.player = (app) => {
      *       '403':
      *         description: JWT token and username from client don't match
      */
+	app.post('/next', (req, res) => {
+		const access_token = req.body.token
 
-    app.post('/next', (req, res) => {
-        const access_token = req.body.token
+		const options = {
+			url: 'https://api.spotify.com/v1/me/player/next',
+			headers: { Authorization: `Bearer ${access_token}` },
+			json: true,
+		};
 
-        const options = {
-            url: 'https://api.spotify.com/v1/me/player/next',
-            headers: {'Authorization': 'Bearer ' + access_token},
-            json: true,
-        };
-
-        request.post(options, () => {
-            res.send('skipped to next song!')
-        });
-    })
+		request.post(options, () => {
+			res.send('skipped to next song!')
+		});
+	})
 
     /**
      * @swagger
@@ -296,20 +290,19 @@ module.exports.player = (app) => {
      *       '403':
      *         description: JWT token and username from client don't match
      */
+	app.post('/previous', (req, res) => {
+		const access_token = req.body.token
 
-    app.post('/previous', (req, res) => {
-        const access_token = req.body.token
+		const options = {
+			url: 'https://api.spotify.com/v1/me/player/previous',
+			headers: { Authorization: `Bearer ${access_token}` },
+			json: true
+		};
 
-        const options = {
-            url: 'https://api.spotify.com/v1/me/player/previous',
-            headers: {'Authorization': 'Bearer ' + access_token},
-            json: true
-        };
-
-        request.post(options, () => {
-            res.send('skipped to previous song!')
-        });
-    })
+		request.post(options, () => {
+			res.send('skipped to previous song!')
+		});
+	})
 
     /**
      * @swagger
@@ -332,21 +325,18 @@ module.exports.player = (app) => {
      *       '403':
      *         description: JWT token and username from client don't match
      */
+	app.get('/devices', (req, res) => {
+		const { access_token } = req.session
 
-    app.get('/devices', (req, res) => {
-        const access_token = req.session.access_token
+		const options = {
+			url: 'https://api.spotify.com/v1/me/player/devices',
+			headers: { Authorization: `Bearer ${access_token}` },
+			json: true
+		};
 
-        const options = {
-            url: 'https://api.spotify.com/v1/me/player/devices',
-            headers: {'Authorization': 'Bearer ' + access_token},
-            json: true
-        };
-
-        request.get(options, function (error, response, body) {
-            res.end(JSON.stringify(body, undefined, 2))
-        });
-    })
-
-
+		request.get(options, (error, response, body) => {
+			res.end(JSON.stringify(body, undefined, 2))
+		});
+	})
 
 }

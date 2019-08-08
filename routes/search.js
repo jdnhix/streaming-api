@@ -1,5 +1,4 @@
 import request from 'request'
-import cache from '../cache'
 
 module.exports.search = (app) => {
 
@@ -36,28 +35,24 @@ module.exports.search = (app) => {
      *       '403':
      *         description: JWT token and username from client don't match
      */
-
-    app.get('/search', async  (req, res) => {
-        // const spotifyToken = await cache.spotifyToken todo may need to switch back to this token
-        const spotifyToken = req.query.accessToken
-        const songName = req.query.songName
+	app.get('/search', async (req, res) => {
+		const { accessToken } = req.query
+		const { songName } = req.query
         // console.log('access token', spotifyToken)
 
-        const options = {
-            url: 'https://api.spotify.com/v1/search',
-            headers: {'Authorization': 'Bearer ' + spotifyToken},
-            qs: {
-                q: `track:${songName}`,
-                type: 'track',
-            },
-            json: true,
-        };
+		const options = {
+			url: 'https://api.spotify.com/v1/search',
+			headers: { Authorization: `Bearer ${accessToken}` },
+			qs: {
+				q: `track:${songName}`,
+				type: 'track',
+			},
+			json: true,
+		};
 
-        request.get(options, function (error, response, body) {
-            // console.log(body)
-            res.end(JSON.stringify(body, undefined, 2))
-        });
-    })
-
+		request.get(options, (error, response, body) => {
+			res.end(JSON.stringify(body, undefined, 2))
+		});
+	})
 
 }

@@ -2,22 +2,21 @@ import querystring from 'querystring'
 import request from 'request'
 import ip from 'ip'
 
+// todo find a way to hide this, maybe circle ci?
 const client_id = '85ec7eb9dc0543fc9408c8ba05fd2bdb';
 const client_secret = 'c9192d5af4bb450da0770bf5b23f4e49';
 let redirect_uri = ''
 
-if(ip.address() === '172.31.83.49'){
-    // redirect_uri = 'http://jdh-symphony-bucket.s3-website-us-east-1.amazonaws.com/setup'//delete this?
-    redirect_uri = 'http://d2092ntamk9msk.cloudfront.net/setup'
+if (ip.address() === '172.31.83.49') {
+	// redirect_uri = 'http://jdh-symphony-bucket.s3-website-us-east-1.amazonaws.com/setup'//delete this?
+	redirect_uri = 'http://d2092ntamk9msk.cloudfront.net/setup'
 } else {
-    redirect_uri = 'http://192.168.50.85:8081/setup' //change this to the current local ip
+	redirect_uri = 'http://192.168.50.86:8081/setup' // change this to the current local ip
 }
-
-
 
 module.exports.getUserAccess = (app) => {
 
-    /**
+	/**
      * @swagger
      * /login:
      *   get:
@@ -39,30 +38,27 @@ module.exports.getUserAccess = (app) => {
      *         description: JWT token and username from client don't match
      */
 
-    app.get('/login', (req, res) => {
+	app.get('/login', (req, res) => {
+		res.redirect(`https://accounts.spotify.com/authorize?${
+			querystring.stringify({
+				response_type: 'code',
+				client_id,
+				redirect_uri,
+				scope: 'user-follow-read '
+                    + 'user-read-playback-state '
+                    + 'user-read-recently-played '
+                    + 'streaming '
+                    + 'user-read-email '
+                    + 'user-read-birthdate '
+                    + 'user-read-private '
+                    + 'user-modify-playback-state ',
+				// 'user-top-read ',
+				show_dialog: 'true'
+				// state: state todo add this for extra securtiy
+			})}`)
+	})
 
-        res.redirect('https://accounts.spotify.com/authorize?' +
-            querystring.stringify({
-                response_type: 'code',
-                client_id: client_id,
-                redirect_uri,
-                scope: 'user-follow-read ' +
-                    'user-read-playback-state ' +
-                    'user-read-recently-played ' +
-                    'streaming ' +
-                    'user-read-email ' +
-                    'user-read-birthdate ' +
-                    'user-read-private ' +
-                    'user-modify-playback-state ' ,
-                // 'user-top-read ',
-                show_dialog: 'true'
-                // state: state todo add this for extra securtiy
-            }))
-
-    })
-
-
-    /**
+	/**
      * @swagger
      * /user:
      *   get:
@@ -83,73 +79,42 @@ module.exports.getUserAccess = (app) => {
      *       '403':
      *         description: JWT token and username from client don't match
      */
-    //todo replace this with the other /user when done
-    app.get('/user', (req, res) => {
-        const code = req.query.code;
 
-        var authOptions = {
-            url: 'https://accounts.spotify.com/api/token',
-            form: {
-                code: code,
-                redirect_uri: redirect_uri,
-                grant_type: 'authorization_code'
-            },
-            headers: {
-                'Authorization': 'Basic ' + Buffer.from(client_id + ':' + client_secret).toString('base64')
-            },
-            json: true
-        };
+	app.post('/user', (req, res) => {
 
-        request.post(authOptions, function (error, response, body) {
-            let access_token = body.access_token
-            if(error) {
-                res.statusCode = 400
-                return
-            }
-            if (access_token) {
-                req.session.access_token = access_token
-                res.send('Logged in!')
-            } else {
-                res.send('Login Failed')
-            }
-        })
+		const { code } = req.body
 
-    });
+		const authOptions = {
+			url: 'https://accounts.spotify.com/api/token',
+			form: {
+				code,
+				redirect_uri,
+				grant_type: 'authorization_code'
+			},
+			headers: {
+				Authorization: `Basic ${Buffer.from(`${client_id}:${client_secret}`).toString('base64')}`
+			},
+			json: true
+		};
 
+		request.post(authOptions, (error, response, body) => {
+			if (error) {
+				res.statusCode = 400
 
-    app.post('/user2', (req, res) => {
-        // console.log(req.body.code)
-        const code = req.body.code
+				return
+			}
 
-        var authOptions = {
-            url: 'https://accounts.spotify.com/api/token',
-            form: {
-                code: code,
-                redirect_uri: redirect_uri,
-                grant_type: 'authorization_code'
-            },
-            headers: {
-                'Authorization': 'Basic ' + Buffer.from(client_id + ':' + client_secret).toString('base64')
-            },
-            json: true
-        };
+			if (body) {
+				res.send(body)
+			} else {
+				res.send('Login Failed')
+			}
+		})
 
-        request.post(authOptions, function (error, response, body) {
-            if(error) {
-                res.statusCode = 400
-                return
-            }
-            if (body) {
-                res.send(body)
-            } else {
-                res.send('Login Failed')
-            }
-        })
-
-    });
+	});
 
 
-    /**
+	/**
      * @swagger
      * /auth:
      *   get:
@@ -171,34 +136,31 @@ module.exports.getUserAccess = (app) => {
      *         description: JWT token and username from client don't match
      */
 
-    app.get('/auth', (req, res) => {
-        const authObject = {
-            url: 'https://accounts.spotify.com/authorize?' +
-                querystring.stringify({
-                    response_type: 'code',
-                    client_id: client_id,
-                    redirect_uri,
-                    scope: 'user-follow-read ' +
-                        'user-read-playback-state ' +
-                        'user-read-recently-played ' +
-                        'streaming ' +
-                        'user-read-email ' +
-                        'user-read-birthdate ' +
-                        'user-read-private ' +
-                        'user-modify-playback-state ' ,
-                    // 'user-top-read ',
-                    show_dialog: 'true'
-                    // state: state todo add this for extra securtiy
-                })
-        }
-        res.send(authObject)
-
-    })
-
+	app.get('/auth', (req, res) => {
+		const authObject = {
+			url: `https://accounts.spotify.com/authorize?${
+				querystring.stringify({
+					response_type: 'code',
+					client_id,
+					redirect_uri,
+					scope: 'user-follow-read '
+                        + 'user-read-playback-state '
+                        + 'user-read-recently-played '
+                        + 'streaming '
+                        + 'user-read-email '
+                        + 'user-read-birthdate '
+                        + 'user-read-private '
+                        + 'user-modify-playback-state ',
+					// 'user-top-read ',
+					show_dialog: 'true'
+					// state: state todo add this for extra securtiy
+				})}`
+		}
+		res.send(authObject)
+	})
 
 
-
-    /**
+	/**
      * @swagger
      * /refresh_token:
      *   get:
@@ -220,31 +182,26 @@ module.exports.getUserAccess = (app) => {
      *         description: JWT token and username from client don't match
      */
 
-    app.post('/refresh_token', function (req, res) {
+	app.post('/refresh_token', (req, res) => {
+		// requesting access token from refresh token
+		const refresh_token = req.body.refreshToken;
+		const authOptions = {
+			url: 'https://accounts.spotify.com/api/token',
+			headers: { Authorization: `Basic ${new Buffer(`${client_id}:${client_secret}`).toString('base64')}` },
+			form: {
+				grant_type: 'refresh_token',
+				refresh_token
+			},
+			json: true
+		};
 
-        // requesting access token from refresh token
-        var refresh_token = req.body.refreshToken;
-        var authOptions = {
-            url: 'https://accounts.spotify.com/api/token',
-            headers: {'Authorization': 'Basic ' + (new Buffer(client_id + ':' + client_secret).toString('base64'))},
-            form: {
-                grant_type: 'refresh_token',
-                refresh_token: refresh_token
-            },
-            json: true
-        };
-
-        request.post(authOptions, function (error, response, body) {
-            if (!error && response.statusCode === 200) {
-                var access_token = body.access_token;
-                res.send({
-                    'access_token': access_token
-                });
-            }
-        });
-    });
-
-
+		request.post(authOptions, (error, response, body) => {
+			if (!error && response.statusCode === 200) {
+				const { access_token } = body
+				res.send({
+					access_token
+				});
+			}
+		});
+	});
 }
-
-
