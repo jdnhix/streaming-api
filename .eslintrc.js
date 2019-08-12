@@ -32,6 +32,7 @@ module.exports = {
             'ignoreComments': true
         }],
         'no-tabs': 0,
+        'max-len': 0,
 
         //etc
         'no-console': 0,

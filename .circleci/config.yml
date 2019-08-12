@@ -1,13 +1,33 @@
 version: 2.0
 jobs:
-  build:
-    docker:
-      - image: alpine:3.7
-    steps:
-      - run:
-          name: The First Step
-          command: |
-            echo 'Hello World!'
-            echo 'This is the delivery pipeline'
+   build:
+      docker:
+         -  image: alpine:3.7
+      steps:
+         -  run:
+               name: The First Step
+               command: |
+                  echo 'Hello World!'
+                  echo 'This is the delivery pipeline'
+   deploy:
+      machine:
+         enabled: true
+      steps:
+         -  run:
+               name: Deploy Over SSH
+               command: |
+                  ssh $SSH_USER@$SSH_HOST "cd streaming_api git pull"
+
+workflows:
+   version: 2
+   build-and-deploy:
+      jobs:
+         - build
+         - deploy:
+              requires:
+                 - build
+              filters:
+                 branches:
+                    only: master
 
 

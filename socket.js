@@ -33,7 +33,8 @@ module.exports.socket = (server, db) => {
 						downVoteLimit: room.downVoteLimit,
 						queue: room.queue,
 						currentSong: room.currentSong,
-						accessToken: room.accessToken
+						accessToken: room.accessToken,
+						refreshToken: room.refreshToken
 					}
 				},
 				{
@@ -41,7 +42,7 @@ module.exports.socket = (server, db) => {
 				},
 				(err, result) => {
 					room._id = result.upsertedId._id
-					socket.emit('addRoom', room)
+					io.emit('addRoom', room)
 					if (err) {
 						console.log(err)
 					} else {
@@ -50,7 +51,6 @@ module.exports.socket = (server, db) => {
 					}
 				}
 			)
-			io.emit('addRoom', room)
 		})
 
 		socket.on('join', (roomId) => {
