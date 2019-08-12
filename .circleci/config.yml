@@ -16,7 +16,7 @@ jobs:
          -  run:
                name: Deploy Over SSH
                command: |
-                  ssh $SSH_USER@$SSH_HOST "cd streaming_api git pull"
+                  ssh $SSH_USER@$SSH_HOST "rm -r streaming_api git clone https://github.com/jdnhix/streaming-api.git npm install"
 
 workflows:
    version: 2
