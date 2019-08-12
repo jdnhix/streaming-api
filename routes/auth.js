@@ -8,10 +8,9 @@ const client_secret = 'c9192d5af4bb450da0770bf5b23f4e49';
 let redirect_uri = ''
 
 if (ip.address() === '172.31.83.49') {
-	// redirect_uri = 'http://jdh-symphony-bucket.s3-website-us-east-1.amazonaws.com/setup'//delete this?
-	redirect_uri = 'http://d2092ntamk9msk.cloudfront.net/setup'
+	redirect_uri = 'http://symphonyroom.com/setup'
 } else {
-	redirect_uri = 'http://192.168.50.86:8081/setup' // change this to the current local ip
+	redirect_uri = 'http://192.168.50.58:8081/setup' // change this to the current local ip
 }
 
 module.exports.getUserAccess = (app) => {
@@ -37,7 +36,6 @@ module.exports.getUserAccess = (app) => {
      *       '403':
      *         description: JWT token and username from client don't match
      */
-
 	app.get('/login', (req, res) => {
 		res.redirect(`https://accounts.spotify.com/authorize?${
 			querystring.stringify({
@@ -79,7 +77,6 @@ module.exports.getUserAccess = (app) => {
      *       '403':
      *         description: JWT token and username from client don't match
      */
-
 	app.post('/user', (req, res) => {
 
 		const { code } = req.body
@@ -113,7 +110,6 @@ module.exports.getUserAccess = (app) => {
 
 	});
 
-
 	/**
      * @swagger
      * /auth:
@@ -135,7 +131,6 @@ module.exports.getUserAccess = (app) => {
      *       '403':
      *         description: JWT token and username from client don't match
      */
-
 	app.get('/auth', (req, res) => {
 		const authObject = {
 			url: `https://accounts.spotify.com/authorize?${
@@ -159,7 +154,6 @@ module.exports.getUserAccess = (app) => {
 		res.send(authObject)
 	})
 
-
 	/**
      * @swagger
      * /refresh_token:
@@ -181,7 +175,6 @@ module.exports.getUserAccess = (app) => {
      *       '403':
      *         description: JWT token and username from client don't match
      */
-
 	app.post('/refresh_token', (req, res) => {
 		// requesting access token from refresh token
 		const refresh_token = req.body.refreshToken;

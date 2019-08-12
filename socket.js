@@ -81,6 +81,7 @@ module.exports.socket = (server, db) => {
 		// Queue events
 		// todo find where the db queue is being sorted
 		socket.on('addSongToQueue', async (song) => {
+			console.log('add song to queue')
 			song.rank = 0
 			const { roomId } = song
 

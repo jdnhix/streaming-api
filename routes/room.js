@@ -42,7 +42,6 @@ module.exports.room = (app, db) => {
 			).toArray((err, docs) => {
 				if (err) {
 					console.log(err)
-					res.error(err)
 				} else {
 					res.json(docs)
 				}
