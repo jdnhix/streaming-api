@@ -83,8 +83,7 @@ module.exports.search = (app) => {
 				console.log('error with access token, attempting to refresh token')
 				const newAccessToken = await getNewToken(refreshToken)
 				console.log(`New access token: ${newAccessToken}`)
-				
-				// todo new access token is here, i need to retry the request and update the room's access token
+
 				const newOptions = {
 					url: 'https://api.spotify.com/v1/search',
 					headers: { Authorization: `Bearer ${newAccessToken}` },
@@ -98,6 +97,8 @@ module.exports.search = (app) => {
 				request.get(newOptions, async (error, response, body) => {
 					res.end(JSON.stringify(body, undefined, 2))
 				})
+
+				// todo need to find a way to update the access token, sockets maybe?
 
 
 			} else {

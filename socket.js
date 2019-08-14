@@ -2,6 +2,31 @@ import socket from 'socket.io'
 import { ObjectId } from 'mongodb'
 import request from 'request'
 
+const client_id = '85ec7eb9dc0543fc9408c8ba05fd2bdb';
+const client_secret = 'c9192d5af4bb450da0770bf5b23f4e49';
+
+async function getNewToken(refreshToken) {
+	const authOptions = {
+		url: 'https://accounts.spotify.com/api/token',
+		headers: { Authorization: `Basic ${new Buffer(`${client_id}:${client_secret}`).toString('base64')}` },
+		form: {
+			grant_type: 'refresh_token',
+			refresh_token: refreshToken
+		},
+		json: true
+	};
+
+	return new Promise((resolve) => {
+		request.post(authOptions, (error, response, body) => {
+			console.log(body)
+			if (!error && response.statusCode === 200) {
+				const { access_token } = body
+				resolve(access_token)
+			}
+		});
+	})
+}
+
 module.exports.socket = (server, db) => {
 	const io = socket(server)
 
@@ -123,6 +148,68 @@ module.exports.socket = (server, db) => {
 			io.in(params.roomId).emit('removeQueueItem', params)
 		})
 
+		socket.on('songSearch', (params) => {
+
+			const { accessToken } = params
+			const { refreshToken } = params
+			const { songName } = params
+
+
+			const options = {
+				url: 'https://api.spotify.com/v1/search',
+				headers: { Authorization: `Bearer ${accessToken}` },
+				qs: {
+					q: `track:${songName}`,
+					type: 'track',
+				},
+				json: true,
+			};
+
+			request.get(options, async (error, response, body) => {
+				// updates token, retries request, and sends new token back
+				if (body && body.error && body.error.message === 'Invalid access token') {
+					console.log('error with access token, attempting to refresh token')
+					const newAccessToken = await getNewToken(refreshToken)
+					console.log(`New access token: ${newAccessToken}`)
+
+					const newOptions = {
+						url: 'https://api.spotify.com/v1/search',
+						headers: { Authorization: `Bearer ${newAccessToken}` },
+						qs: {
+							q: `track:${songName}`,
+							type: 'track',
+						},
+						json: true,
+					};
+
+					request.get(newOptions, async (error, response, body) => {
+						socket.emit('songSearchResults', body)
+					})
+
+					db.development
+						.collection('rooms')
+						.updateOne(
+							{ _id: ObjectId(params.roomId) },
+							{ $set: { accessToken: newAccessToken } },
+							// eslint-disable-next-line no-unused-vars
+							(err, result) => {
+								if (err) {
+									console.log(err)
+								} else {
+									// console.log(result)
+								}
+							}
+						)
+
+					io.in(params.roomId).emit('updateToken', newAccessToken)
+
+				} else {
+					socket.emit('songSearchResults', body)
+				}
+
+			})
+		})
+
 		// Player Events
 
 		socket.poll = (token) => {
@@ -134,6 +221,7 @@ module.exports.socket = (server, db) => {
 				json: true
 			}
 
+			// todo ill have to put a check for the expired access token here eventually
 			request.get(options, (error, response, body) => {
 				if (body && body.is_playing) {
 					// console.log(`playing at ${body.progress_ms} ms`)
