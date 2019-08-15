@@ -4,7 +4,7 @@ const password = 'sWXgMcsbvYPjgj4C';
 const DEV_URI = `mongodb+srv://api-service-account:${password}@listening-room-ial18.mongodb.net/listening-room?retryWrites=true&w=majority`;
 
 function connect(url) {
-    return MongoClient.connect(url, { useNewUrlParser: true }).then(client => client.db())
+    return MongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true }).then(client => client.db())
 }
 
 module.exports = async function() {
