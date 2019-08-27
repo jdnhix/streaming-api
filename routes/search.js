@@ -63,6 +63,7 @@ module.exports.search = (app) => {
      *         description: JWT token and username from client don't match
      */
 	app.get('/search', async (req, res) => {
+		console.log('searching song')
 		const { accessToken } = req.query
 		const { refreshToken } = req.query
 		const { songName } = req.query

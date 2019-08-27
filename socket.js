@@ -103,6 +103,21 @@ module.exports.socket = (server, db) => {
 			io.emit('closeRoom', params)
 		})
 
+		socket.on('getDevices', (params) => {
+			const { token } = params
+
+			const options = {
+				url: 'https://api.spotify.com/v1/me/player/devices',
+				headers: { Authorization: `Bearer ${token}` },
+				json: true
+			};
+
+			request.get(options, (error, response, body) => {
+				socket.emit('getDevices', body.devices)
+			});
+
+		})
+
 		// Queue events
 		// todo find where the db queue is being sorted
 		socket.on('addSongToQueue', async (song) => {
@@ -210,6 +225,58 @@ module.exports.socket = (server, db) => {
 			})
 		})
 
+		socket.on('changeSongRank', async (params) => {
+			const id = params.song.songId
+			const { direction } = params
+			console.log(params)
+
+			if (direction === 'inc') {
+				db.development
+					.collection('rooms')
+					.updateOne(
+						{ _id: ObjectId(params.roomId), 'queue.songId': id },
+						{ $inc: { 'queue.$.rank': 1 } },
+						(err, result) => {
+							if (err) {
+								console.log(err)
+							} else {
+								// console.log(result)
+							}
+						}
+					)
+			} else if (direction === 'dec') {
+				db.development
+					.collection('rooms')
+					.updateOne(
+						{ _id: ObjectId(params.roomId), 'queue.songId': id },
+						{ $inc: { 'queue.$.rank': -1 } },
+						(err, result) => {
+							if (err) {
+								console.log(err)
+							} else {
+								// console.log(result)
+							}
+						}
+					)
+			}
+
+			db.development
+				.collection('rooms')
+				.update(
+					{ _id: ObjectId(params.roomId) },
+					{ $push: { queue: { $each: [], $sort: { rank: -1 } } } },
+					(err, result) => {
+						if (err) {
+							console.log(err)
+						} else {
+							// console.log(result)
+						}
+					}
+				)
+
+			io.in(params.roomId).emit('changeSongRank', params)
+		})
+
 		// Player Events
 
 		socket.poll = (token) => {
@@ -302,57 +369,6 @@ module.exports.socket = (server, db) => {
 			}
 
 			io.in(params.roomId).emit('playSong', params)
-		})
-
-		socket.on('changeSongRank', async (params) => {
-			const id = params.song.songId
-			const { direction } = params
-
-			if (direction === 'inc') {
-				db.development
-					.collection('rooms')
-					.updateOne(
-						{ _id: ObjectId(params.roomId), 'queue.songId': id },
-						{ $inc: { 'queue.$.rank': 1 } },
-						(err, result) => {
-							if (err) {
-								console.log(err)
-							} else {
-								// console.log(result)
-							}
-						}
-					)
-			} else if (direction === 'dec') {
-				db.development
-					.collection('rooms')
-					.updateOne(
-						{ _id: ObjectId(params.roomId), 'queue.songId': id },
-						{ $inc: { 'queue.$.rank': -1 } },
-						(err, result) => {
-							if (err) {
-								console.log(err)
-							} else {
-								// console.log(result)
-							}
-						}
-					)
-			}
-
-			db.development
-				.collection('rooms')
-				.update(
-					{ _id: ObjectId(params.roomId) },
-					{ $push: { queue: { $each: [], $sort: { rank: -1 } } } },
-					(err, result) => {
-						if (err) {
-							console.log(err)
-						} else {
-							// console.log(result)
-						}
-					}
-				)
-
-			io.in(params.roomId).emit('changeSongRank', params)
 		})
 
 		socket.on('clearCurrentSong', (params) => {
