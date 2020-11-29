@@ -1,6 +1,8 @@
-import socket from 'socket.io'
-import { ObjectId } from 'mongodb'
-import request from 'request'
+const socket = require('socket.io')
+const temp = require('mongodb')
+const ObjectId = temp.ObjectId
+// import { ObjectId } from 'mongodb'
+const request = require('request');
 
 const client_id = '85ec7eb9dc0543fc9408c8ba05fd2bdb';
 const client_secret = 'c9192d5af4bb450da0770bf5b23f4e49';
