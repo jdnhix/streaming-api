@@ -1,6 +1,9 @@
+//
+// import cache from '../cache'
+// import axios from 'axios'
 
-import cache from '../cache'
-import axios from 'axios'
+const cache = require('../cache')
+const axios = require('axios')
 
 module.exports.searchTrack = async(app) => {
     const spotifyToken = await cache.spotifyToken

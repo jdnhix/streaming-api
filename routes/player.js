@@ -1,4 +1,4 @@
-import request from 'request'
+const request = require('request');
 
 // phase these out once they aren't needed for sure
 module.exports.player = (app) => {
