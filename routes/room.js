@@ -1,4 +1,7 @@
-import { ObjectId } from 'mongodb';
+
+const temp = require('mongodb')
+const ObjectId = temp.ObjectId
+
 
 
 module.exports.room = (app, db) => {
