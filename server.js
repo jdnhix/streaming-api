@@ -1,12 +1,12 @@
-import express from 'express';
-import cors from 'cors';
-import swaggerDoc from 'swagger-jsdoc';
-import swagger from 'swagger-ui-express';
-import bodyParser from 'body-parser';
-import morgan from 'morgan';
-import session from 'cookie-session'
-import ip from 'ip'
-import logger from './logger'
+const cors = require('cors');
+const swaggerDoc = require('swagger-jsdoc');
+const swagger = require('swagger-ui-express');
+const bodyParser = require('body-parser');
+const morgan = require('morgan');
+const session = require('cookie-session')
+const ip = require('ip')
+const express = require('express');
+const logger = require('./logger');
 
 const initializeDatabases = require('./db.js')
 
