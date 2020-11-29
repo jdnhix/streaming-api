@@ -10,7 +10,8 @@ let redirect_uri = ''
 if (ip.address() === '172.31.83.49') {
 	redirect_uri = 'http://symphonyroom.com/setup'
 } else {
-	redirect_uri = 'http://192.168.1.71:8081/setup' // todo change this to the current local ip
+	redirect_uri = 'http://jdh-symphony-bucket.s3-website-us-east-1.amazonaws.com/setup'
+	// redirect_uri = 'http://192.168.1.71:8081/setup'// todo change this to the current local ip
 }
 
 module.exports.getUserAccess = (app) => {
